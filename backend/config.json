@@ -1,0 +1,20 @@
+{
+  "segmento": "Material de Construção",
+
+  "cnaes": [
+    "4744-0/99",
+    "4744-0/03",
+    "4744-0/01",
+    "4741-5/00"
+  ],
+
+  "buscar_cnaes_secundarios": true,
+
+  "filtros": {
+    "estados": ["SP"],
+
+    "situacao_cadastral": "ATIVA",
+
+    "porte": ["ME", "EPP"]
+  }
+}

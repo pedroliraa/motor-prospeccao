@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Empresa {
+  id Int @id @default(autoincrement())
+
+  cnpj         String  @unique
+  razaoSocial  String
+  nomeFantasia String?
+
+  cidade String?
+  estado String?
+
+  telefone String?
+
+  capitalSocial Float?
+
+  regimeTributario String?
+  porte            String?
+
+  dataAbertura DateTime?
+
+  status String @default("pendente_enriquecimento")
+
+  leads Lead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lead {
+  id Int @id @default(autoincrement())
+
+  empresaId Int
+  empresa   Empresa @relation(fields: [empresaId], references: [id])
+
+  score         Int?
+  classificacao String?
+
+  justificativa String?
+
+  createdAt DateTime @default(now())
+}
+
+model Execucao {
+  id Int @id @default(autoincrement())
+
+  segmento String
+
+  status String @default("pendente")
+
+  totalEmpresas Int @default(0)
+
+  createdAt DateTime @default(now())
+}

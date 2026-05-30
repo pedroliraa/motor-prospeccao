@@ -1,0 +1,36 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
+export async function getLeads(): Promise<any[]> {
+  const res = await fetch(`${API_URL}/api/leads`);
+  return res.json();
+}
+
+export async function iniciarBusca(): Promise<{ id: number; status: string }> {
+  const res = await fetch(`${API_URL}/api/execucoes`, { method: 'POST' });
+  return res.json();
+}
+
+export async function getStatusExecucao(id: number) {
+  const res = await fetch(`${API_URL}/api/execucoes/${id}`);
+  return res.json();
+}
+
+export async function iniciarEnriquecimento() {
+  const res = await fetch(`${API_URL}/api/enriquecimento`, { method: 'POST' });
+  return res.json();
+}
+
+export async function getStatusEnriquecimento() {
+  const res = await fetch(`${API_URL}/api/enriquecimento/status`);
+  return res.json();
+}
+
+export async function iniciarPresencaDigital() {
+  const res = await fetch(`${API_URL}/api/presenca-digital`, { method: 'POST' });
+  return res.json();
+}
+
+export async function getStatusPresencaDigital() {
+  const res = await fetch(`${API_URL}/api/presenca-digital/status`);
+  return res.json();
+}

@@ -11,51 +11,52 @@ model Empresa {
   id Int @id @default(autoincrement())
 
   cnpj         String  @unique
-  razaoSocial  String
+  razaoSocial  String?
   nomeFantasia String?
 
-  cidade String?
-  estado String?
+  cnae         String?
+  cnaeDescricao String?
 
-  telefone String?
+  logradouro   String?
+  numero       String?
+  bairro       String?
+  cep          String?
+  cidade       String?
+  estado       String?
 
-  capitalSocial Float?
+  telefone1    String?
+  telefone2    String?
+  email        String?
 
+  // enriquecimento via CNPJ.ws (próxima etapa)
+  capitalSocial    Float?
   regimeTributario String?
   porte            String?
+  dataAbertura     DateTime?
+  socios           String?   // JSON serializado
 
-  dataAbertura DateTime?
+  // presença digital (etapa 3)
+  instagramHandle    String?
+  instagramSeguidores Int?
+  instagramStatus    String?
+  googleNota         Float?
+  googleAvaliacoes   Int?
+
+  // scoring (etapa 4)
+  score         Int?
+  classificacao String?
+  justificativa String?
 
   status String @default("pendente_enriquecimento")
-
-  leads Lead[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Lead {
-  id Int @id @default(autoincrement())
-
-  empresaId Int
-  empresa   Empresa @relation(fields: [empresaId], references: [id])
-
-  score         Int?
-  classificacao String?
-
-  justificativa String?
-
-  createdAt DateTime @default(now())
-}
-
 model Execucao {
-  id Int @id @default(autoincrement())
-
-  segmento String
-
-  status String @default("pendente")
-
-  totalEmpresas Int @default(0)
-
-  createdAt DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  segmento      String
+  status        String   @default("pendente")
+  totalEmpresas Int      @default(0)
+  createdAt     DateTime @default(now())
 }

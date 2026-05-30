@@ -2,19 +2,18 @@
   "segmento": "Material de Construção",
 
   "cnaes": [
-    "4744-0/99",
-    "4744-0/03",
-    "4744-0/01",
-    "4741-5/00"
+    "4744099",
+    "4744003",
+    "4744001",
+    "4741500"
   ],
 
   "buscar_cnaes_secundarios": true,
 
   "filtros": {
-    "estados": ["SP"],
-
+    "estados": ["PB"],
+    "municipios": ["CAMPINA GRANDE", "JOAO PESSOA", "ESPERANCA"],
     "situacao_cadastral": "ATIVA",
-
     "porte": ["ME", "EPP"]
   }
 }

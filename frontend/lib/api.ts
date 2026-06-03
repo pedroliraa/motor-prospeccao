@@ -34,3 +34,14 @@ export async function getStatusPresencaDigital() {
   const res = await fetch(`${API_URL}/api/presenca-digital/status`);
   return res.json();
 }
+
+export async function exportarExcel() {
+  const res = await fetch(`${API_URL}/api/export/excel`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'leads_qualificados.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+}

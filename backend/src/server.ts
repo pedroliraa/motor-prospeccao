@@ -2,7 +2,9 @@ import 'dotenv/config';
 import express from 'express';
 import { executarBusca } from './modules/busca/index.js';
 import { executarEnriquecimento } from './modules/enriquecimento/index.js';
+import { executarScoring } from './modules/scoring/index.js';
 import prisma from './db/prisma.js';
+import { gerarExcel } from './modules/exportacao/index.js';
 import { executarPresencaDigital } from './modules/enriquecimento/presencaDigital.js';
 import cors from 'cors';
 
@@ -21,7 +23,7 @@ app.post('/api/execucoes', async (_req, res) => {
     const execucao = await prisma.execucao.create({
       data: {
         segmento: 'Material de Construção',
-        status:   'processando',
+        status: 'processando',
       },
     });
 
@@ -34,32 +36,32 @@ app.post('/api/execucoes', async (_req, res) => {
         for (const emp of empresas) {
           try {
             await prisma.empresa.upsert({
-              where:  { cnpj: emp.cnpj },
+              where: { cnpj: emp.cnpj },
               update: {},
               create: {
-                cnpj:          emp.cnpj,
-                nomeFantasia:  emp.nome_fantasia  || null,
-                cnae:          emp.cnae_fiscal    || null,
+                cnpj: emp.cnpj,
+                nomeFantasia: emp.nome_fantasia || null,
+                cnae: emp.cnae_fiscal || null,
                 cnaeDescricao: emp.cnae_descricao || null,
-                logradouro:    emp.logradouro     || null,
-                numero:        emp.numero         || null,
-                bairro:        emp.bairro         || null,
-                cep:           emp.cep            || null,
-                cidade:        emp.municipio      || null,
-                estado:        emp.uf             || null,
-                telefone1:     emp.telefone1      || null,
-                telefone2:     emp.telefone2      || null,
-                email:         emp.email          || null,
-                status:        'pendente_enriquecimento',
+                logradouro: emp.logradouro || null,
+                numero: emp.numero || null,
+                bairro: emp.bairro || null,
+                cep: emp.cep || null,
+                cidade: emp.municipio || null,
+                estado: emp.uf || null,
+                telefone1: emp.telefone1 || null,
+                telefone2: emp.telefone2 || null,
+                email: emp.email || null,
+                status: 'pendente_enriquecimento',
               },
             });
             salvas++;
-          } catch {}
+          } catch { }
         }
 
         await prisma.execucao.update({
           where: { id: execucao.id },
-          data:  { status: 'concluido', totalEmpresas: salvas },
+          data: { status: 'concluido', totalEmpresas: salvas },
         });
 
         console.log(`Execução ${execucao.id} concluída — ${salvas} empresas salvas`);
@@ -67,7 +69,7 @@ app.post('/api/execucoes', async (_req, res) => {
       .catch(async err => {
         await prisma.execucao.update({
           where: { id: execucao.id },
-          data:  { status: 'erro' },
+          data: { status: 'erro' },
         });
         console.error('Erro na execução:', err);
       });
@@ -103,9 +105,9 @@ app.post('/api/enriquecimento', async (_req, res) => {
 
 // status do enriquecimento
 app.get('/api/enriquecimento/status', async (_req, res) => {
-  const total      = await prisma.empresa.count();
+  const total = await prisma.empresa.count();
   const enriquecidas = await prisma.empresa.count({ where: { status: 'enriquecido' } });
-  const pendentes  = await prisma.empresa.count({ where: { status: 'pendente_enriquecimento' } });
+  const pendentes = await prisma.empresa.count({ where: { status: 'pendente_enriquecimento' } });
   res.json({ total, enriquecidas, pendentes });
 });
 
@@ -122,8 +124,46 @@ app.post('/api/presenca-digital', async (_req, res) => {
 
 // status da presença digital
 app.get('/api/presenca-digital/status', async (_req, res) => {
-  const total       = await prisma.empresa.count();
-  const comGoogle   = await prisma.empresa.count({ where: { googleNota: { not: null } } });
-  const semGoogle   = await prisma.empresa.count({ where: { googleNota: null } });
+  const total = await prisma.empresa.count();
+  const comGoogle = await prisma.empresa.count({ where: { googleNota: { not: null } } });
+  const semGoogle = await prisma.empresa.count({ where: { googleNota: null } });
   res.json({ total, comGoogle, semGoogle });
+});
+
+// inicia scoring
+app.post('/api/scoring', async (req, res) => {
+  const limite = Number(req.query.limite) || 9999;
+  res.json({ status: 'processando' });
+  executarScoring(limite).catch(console.error);
+});
+
+// status do scoring
+app.get('/api/scoring/status', async (_req, res) => {
+  const total = await prisma.empresa.count();
+  const qualificadas = await prisma.empresa.count({ where: { score: { not: null } } });
+  const pendentes = await prisma.empresa.count({ where: { score: null } });
+  const quentes = await prisma.empresa.count({ where: { classificacao: 'Quente' } });
+  const mornos = await prisma.empresa.count({ where: { classificacao: 'Morno' } });
+  const frios = await prisma.empresa.count({ where: { classificacao: 'Frio' } });
+  res.json({ total, qualificadas, pendentes, quentes, mornos, frios });
+});
+
+//reset do scoring
+app.post('/api/scoring/reset', async (_req, res) => {
+  const limite = Number(_req.query.limite) || 10;
+  await prisma.empresa.updateMany({
+    where: { id: { lte: limite } },
+    data: { score: null, classificacao: null, justificativa: null, status: 'enriquecido' }
+  });
+  res.json({ ok: true, resetadas: limite });
+});
+
+// gera e baixa Excel
+app.get('/api/export/excel', async (_req, res) => {
+  try {
+    const filePath = await gerarExcel();
+    res.download(filePath, 'leads_qualificados.xlsx');
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao gerar Excel' });
+  }
 });

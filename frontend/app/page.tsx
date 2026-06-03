@@ -5,18 +5,18 @@ import CnaeTags from '../components/CnaeTags';
 import FiltrosForm from '../components/FiltrosForm';
 import ProgressoPipeline from '../components/ProgressoPipeline';
 import TabelaLeads from '../components/TabelaLeads';
-import { getLeads, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, iniciarPresencaDigital } from '../lib/api';
+import { getLeads, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api';
 import { Empresa } from '../types/index';
 
 export default function Home() {
-  const [segmento, setSegmento]     = useState('Material de Construção');
-  const [cnaes, setCnaes]           = useState(['4744099', '4744003', '4744001']);
-  const [estados, setEstados]       = useState(['PB']);
-  const [porte, setPorte]           = useState(['ME', 'EPP']);
-  const [empresas, setEmpresas]     = useState<Empresa[]>([]);
+  const [segmento, setSegmento] = useState('Material de Construção');
+  const [cnaes, setCnaes] = useState(['4744099', '4744003', '4744001']);
+  const [estados, setEstados] = useState(['PB']);
+  const [porte, setPorte] = useState(['ME', 'EPP']);
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [etapaAtual, setEtapaAtual] = useState(-1);
   const [execucaoId, setExecucaoId] = useState<number | null>(null);
-  const [rodando, setRodando]       = useState(false);
+  const [rodando, setRodando] = useState(false);
   const [totalBanco, setTotalBanco] = useState(0);
 
   // carrega leads ao abrir
@@ -29,51 +29,56 @@ export default function Home() {
 
   // polling do status da execução
   useEffect(() => {
-    if (!execucaoId || !rodando) return;
-    const interval = setInterval(async () => {
-      const status = await getStatusExecucao(execucaoId);
-      if (status.status === 'concluido') {
-        setRodando(false);
-        setEtapaAtual(3);
-        const leads = await getLeads();
-        setEmpresas(leads);
-        setTotalBanco(leads.length);
-        clearInterval(interval);
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [execucaoId, rodando]);
+    getLeads().then(data => {
+      const ordenados = [...data].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      setEmpresas(ordenados);
+      setTotalBanco(data.length);
+    });
+  }, []);
 
   async function executar() {
-    setRodando(true);
-    setEtapaAtual(0);
-    const exec = await iniciarBusca();
-    setExecucaoId(exec.id);
+  setRodando(true);
+  setEtapaAtual(0);
 
-    // simula progresso das etapas enquanto processa
-    setTimeout(() => setEtapaAtual(1), 5000);
-    setTimeout(() => setEtapaAtual(2), 10000);
-  }
+  // etapa 1 — busca
+  const exec = await iniciarBusca();
+  setExecucaoId(exec.id);
 
-  function exportarCSV() {
-    if (empresas.length === 0) return;
-    const cols = ['CNPJ', 'Nome', 'Cidade', 'Estado', 'Regime', 'Porte', 'Google Nota', 'Google Avaliações', 'Score', 'Classificação'];
-    const rows = empresas.map(e => [
-      e.cnpj, e.nomeFantasia || e.razaoSocial || '',
-      e.cidade || '', e.estado || '',
-      e.regimeTributario || '', e.porte || '',
-      e.googleNota ?? '', e.googleAvaliacoes ?? '',
-      e.score ?? '', e.classificacao || ''
-    ]);
-    const csv = [cols, ...rows].map(r => r.join(';')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = 'leads.csv'; a.click();
-  }
+  // aguarda busca concluir
+  await new Promise<void>(resolve => {
+    const interval = setInterval(async () => {
+      const status = await getStatusExecucao(exec.id);
+      if (status.status === 'concluido') {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 3000);
+  });
 
+  // etapa 2 — enriquecimento
+  setEtapaAtual(1);
+  await iniciarEnriquecimento();
+  await new Promise(r => setTimeout(r, 5000)); // aguarda iniciar
+
+  // etapa 3 — presença digital
+  setEtapaAtual(2);
+  await iniciarPresencaDigital();
+  await new Promise(r => setTimeout(r, 5000));
+
+  // etapa 4 — scoring
+  setEtapaAtual(3);
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/scoring?limite=10`, { method: 'POST' });
+
+  // recarrega leads
+  setEtapaAtual(4);
+  const leads = await getLeads();
+  const ordenados = [...leads].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  setEmpresas(ordenados);
+  setTotalBanco(leads.length);
+  setRodando(false);
+}
   const quentes = empresas.filter(e => e.classificacao === 'Quente').length;
-  const mornos  = empresas.filter(e => e.classificacao === 'Morno').length;
+  const mornos = empresas.filter(e => e.classificacao === 'Morno').length;
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -151,10 +156,10 @@ export default function Home() {
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
               <p className="text-sm font-medium text-gray-700">Leads qualificados</p>
               <button
-                onClick={exportarCSV}
+                onClick={exportarExcel}
                 className="text-xs px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
               >
-                Exportar CSV
+                Exportar Excel
               </button>
             </div>
             <div className="p-4">

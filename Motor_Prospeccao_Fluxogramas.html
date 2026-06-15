@@ -307,87 +307,104 @@
   <!-- ══════════════════════════════════════════
        DIAGRAMA 2 — SPRINTS REALIZADAS
   ═══════════════════════════════════════════ -->
-  <div class="section">
+ <div class="section">
     <p class="section-label">Diagrama 2</p>
     <p class="section-title">Sprints realizadas — o que foi construído</p>
 
     <div class="sprint">
       <div class="sprint-header">
-        <span class="sprint-name">Sprint 1 · Módulo 1 — Busca por CNAE</span>
+        <span class="sprint-name">Sprint 1 · Módulos 1 ao 5 — MVP completo</span>
         <span class="sprint-status done">✓ Concluído</span>
       </div>
       <div class="deliverables">
-        <span class="tag">Setup Node.js + TypeScript</span>
-        <span class="tag">Prisma ORM + SQLite</span>
-        <span class="tag">Leitura arquivos RFB em streaming</span>
-        <span class="tag">Filtro por CNAE + município + situação</span>
-        <span class="tag">1.852 empresas salvas no banco</span>
-        <span class="tag">API REST — POST /api/execucoes</span>
+        <span class="tag">Módulo 1 — Busca por CNAE (65M registros RFB)</span>
+        <span class="tag">Módulo 2 — Enriquecimento (regime, porte, capital, sócios)</span>
+        <span class="tag">Módulo 3 — Google Meu Negócio (843 empresas)</span>
+        <span class="tag">Módulo 4 — Scoring com Claude API</span>
+        <span class="tag">Módulo 5 — Front-end Next.js 14 + Exportação Excel</span>
+        <span class="tag">1.852 empresas no banco</span>
+        <span class="tag">API REST com Express — 14 endpoints</span>
+        <span class="tag">SQLite + Prisma ORM</span>
       </div>
-      <div class="warn">⚠ Regime tributário ausente em ~132 empresas (cruzamento parcial) · Data de abertura e nº funcionários ainda não coletados</div>
     </div>
 
     <div class="sprint">
       <div class="sprint-header">
-        <span class="sprint-name">Sprint 1 · Módulo 2 — Enriquecimento</span>
+        <span class="sprint-name">Sprint 2 · Correções e melhorias</span>
         <span class="sprint-status done">✓ Concluído</span>
       </div>
       <div class="deliverables">
-        <span class="tag">Razão social e porte (EMPRECSV)</span>
-        <span class="tag">Capital social</span>
-        <span class="tag">Regime tributário (SIMPLES.CSV)</span>
-        <span class="tag">Sócios (SOCIOCSV)</span>
-        <span class="tag">Filiais identificadas</span>
-        <span class="tag">API REST — POST /api/enriquecimento</span>
+        <span class="tag">Regime tributário corrigido — Lucro Real para empresas fora do SIMPLES</span>
+        <span class="tag">Data de abertura coletada do ESTABELE</span>
+        <span class="tag">Faturamento estimado calculado por regime + porte</span>
+        <span class="tag">Campo qtdeFuncionarios adicionado ao schema</span>
+        <span class="tag">Todos os 27 estados nos filtros do front</span>
+        <span class="tag">Campo município no front</span>
+        <span class="tag">Coluna Faturamento est. na tabela de leads</span>
+        <span class="tag">Colunas novas no Excel (data abertura, faturamento)</span>
+        <span class="tag">Cruzamento matriz+filial corrigido (Map string[])</span>
+        <span class="tag">Logs do terminal do back corrigidos</span>
       </div>
-      <div class="warn">⚠ ~53 empresas sem regime preenchido · Instagram não implementado — API oficial inexistente, scraping bloqueado</div>
     </div>
 
     <div class="sprint">
       <div class="sprint-header">
-        <span class="sprint-name">Sprint 1 · Módulo 3 — Presença digital</span>
-        <span class="sprint-status done">✓ Concluído</span>
+        <span class="sprint-name">Sprint 3 · Melhorias de front-end</span>
+        <span class="sprint-status wip">🔜 Em andamento</span>
       </div>
       <div class="deliverables">
-        <span class="tag">Google Meu Negócio ✓</span>
-        <span class="tag">843 empresas com nota e avaliações</span>
-        <span class="tag">Google Places API integrada</span>
-        <span class="tag">API REST — POST /api/presenca-digital</span>
+        <span class="tag">Buscador completo na tabela</span>
+        <span class="tag">Número de contato visível</span>
+        <span class="tag">Tempo de abertura calculado (ex: "8 anos e 3 meses")</span>
+        <span class="tag">Classificação manual pelo SDR (Quente/Morno/Frio)</span>
+        <span class="tag">Ordenação crescente/decrescente nas colunas</span>
+        <span class="tag">Cards filtráveis por classificação</span>
+        <span class="tag">Filial tratado no front</span>
+        <span class="tag">Identidade visual da Impulse</span>
       </div>
-      <div class="warn">⚠ JusBrasil retorna 403 (bot bloqueado) — processos judiciais ficam como "não verificado" · Instagram pendente para próxima sprint</div>
     </div>
 
     <div class="sprint">
       <div class="sprint-header">
-        <span class="sprint-name">Sprint 1 · Módulo 4 — Scoring com IA</span>
-        <span class="sprint-status done">✓ Concluído</span>
+        <span class="sprint-name">Sprint 4 · Instagram + JusBrasil</span>
+        <span class="sprint-status future">📋 Planejada</span>
       </div>
       <div class="deliverables">
-        <span class="tag">Claude API integrada</span>
-        <span class="tag">Score 0–100</span>
-        <span class="tag">Classificação Quente/Morno/Frio</span>
-        <span class="tag">Justificativa textual por lead</span>
-        <span class="tag">Prompt modular por segmento</span>
-        <span class="tag">API REST — POST /api/scoring</span>
+        <span class="tag">Instagram via CNPJA API (~$0.01/empresa)</span>
+        <span class="tag">Seguidores · frequência · engajamento · status</span>
+        <span class="tag">JusBrasil via Escavador API (a partir de $49/mês)</span>
+        <span class="tag">Processos judiciais por CNPJ</span>
+        <span class="tag">Nº de funcionários via CAGED/RAIS</span>
       </div>
-      <div class="warn">⚠ Custo por token limita escala — scoring completo nas 1.852 empresas custa ~$5–8 · Calibração do prompt em andamento para aumentar leads Quentes</div>
+      <div class="note">Alternativa gratuita: Playwright headless com rotação de user-agent — instável mas sem custo operacional</div>
     </div>
 
     <div class="sprint">
       <div class="sprint-header">
-        <span class="sprint-name">Sprint 1 · Módulo 5 — Front-end + Exportação Excel</span>
-        <span class="sprint-status done">✓ Concluído</span>
+        <span class="sprint-name">Sprint 5 · Web Crawling inteligente por empresa</span>
+        <span class="sprint-status future">📋 Planejada</span>
       </div>
       <div class="deliverables">
-        <span class="tag">Next.js 14 + TailwindCSS</span>
-        <span class="tag">Seleção de segmento e CNAEs</span>
-        <span class="tag">Filtros de estado e porte</span>
-        <span class="tag">Progresso em tempo real</span>
-        <span class="tag">Tabela com score e classificação</span>
-        <span class="tag">Exportação Excel (ExcelJS)</span>
-        <span class="tag">Cores por classificação na planilha</span>
+        <span class="tag">Bot busca cada empresa no Google</span>
+        <span class="tag">Coleta site próprio + notícias + Reclame Aqui + redes sociais</span>
+        <span class="tag">Claude API processa e resume todo o conteúdo</span>
+        <span class="tag">Gera perfil de inteligência comercial do lead</span>
       </div>
-      <div class="warn">⚠ Logs do back não aparecem no terminal após update do VS Code · Polling de status ainda instável — correção em andamento</div>
+      <div class="note">Complexidade: média-alta · Custo estimado: ~$0.05/empresa (tokens Claude) · Playwright gratuito · Valor agregado: muito alto</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprints 6–7 · Produto e escala</span>
+        <span class="sprint-status future">🔮 Futuro</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Painel web completo com histórico</span>
+        <span class="tag">WhatsApp via Evolution API</span>
+        <span class="tag">Integração CRM (HubSpot · Kommo · Pipedrive)</span>
+        <span class="tag">Multi-tenant SaaS</span>
+        <span class="tag">Monitoramento contínuo com re-score automático</span>
+      </div>
     </div>
 
     <div class="card" style="background:#F0FDF4;border-color:#86EFAC">
@@ -395,13 +412,13 @@
       <div style="display:flex;gap:24px;flex-wrap:wrap">
         <div><p style="font-size:24px;font-weight:600;color:#065F46">1.852</p><p style="font-size:12px;color:#047857">empresas no banco</p></div>
         <div><p style="font-size:24px;font-weight:600;color:#065F46">843</p><p style="font-size:12px;color:#047857">com dados Google</p></div>
-        <div><p style="font-size:24px;font-weight:600;color:#065F46">5</p><p style="font-size:12px;color:#047857">sprints concluídas</p></div>
-        <div><p style="font-size:24px;font-weight:600;color:#065F46">7</p><p style="font-size:12px;color:#047857">endpoints REST</p></div>
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">2</p><p style="font-size:12px;color:#047857">sprints concluídas</p></div>
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">14</p><p style="font-size:12px;color:#047857">endpoints REST</p></div>
         <div><p style="font-size:24px;font-weight:600;color:#065F46">Grátis*</p><p style="font-size:12px;color:#047857">dados RFB (principal fonte)</p></div>
       </div>
     </div>
   </div>
-
+  
   <!-- ══════════════════════════════════════════
        DIAGRAMA 3 — ROADMAP
   ═══════════════════════════════════════════ -->

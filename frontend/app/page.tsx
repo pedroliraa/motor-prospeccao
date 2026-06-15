@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import SegmentoSelect from '../components/SegmentoSelect';
 import CnaeTags from '../components/CnaeTags';
 import FiltrosForm from '../components/FiltrosForm';
@@ -8,26 +8,23 @@ import TabelaLeads from '../components/TabelaLeads';
 import { getLeads, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api';
 import { Empresa } from '../types/index';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
+
+const FILTROS_CLASSE = ['Todos', 'Quente', 'Morno', 'Frio', 'Sem classificação'] as const;
+type FiltroClasse = typeof FILTROS_CLASSE[number];
+
 export default function Home() {
-  const [segmento, setSegmento] = useState('Material de Construção');
-  const [cnaes, setCnaes] = useState(['4744099', '4744003', '4744001']);
-  const [estados, setEstados] = useState(['PB']);
-  const [porte, setPorte] = useState(['ME', 'EPP']);
-  const [empresas, setEmpresas] = useState<Empresa[]>([]);
-  const [etapaAtual, setEtapaAtual] = useState(-1);
-  const [execucaoId, setExecucaoId] = useState<number | null>(null);
-  const [rodando, setRodando] = useState(false);
-  const [totalBanco, setTotalBanco] = useState(0);
+  const [segmento, setSegmento]         = useState('Material de Construção');
+  const [cnaes, setCnaes]               = useState(['4744099', '4744003', '4744001']);
+  const [estados, setEstados]           = useState(['PB']);
+  const [porte, setPorte]               = useState(['ME', 'EPP']);
+  const [empresas, setEmpresas]         = useState<Empresa[]>([]);
+  const [etapaAtual, setEtapaAtual]     = useState(-1);
+  const [execucaoId, setExecucaoId]     = useState<number | null>(null);
+  const [rodando, setRodando]           = useState(false);
+  const [totalBanco, setTotalBanco]     = useState(0);
+  const [filtroClasse, setFiltroClasse] = useState<FiltroClasse>('Todos');
 
-  // carrega leads ao abrir
-  useEffect(() => {
-    getLeads().then(data => {
-      setEmpresas(data);
-      setTotalBanco(data.length);
-    });
-  }, []);
-
-  // polling do status da execução
   useEffect(() => {
     getLeads().then(data => {
       const ordenados = [...data].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
@@ -36,61 +33,83 @@ export default function Home() {
     });
   }, []);
 
+  async function recarregarLeads() {
+    const data = await getLeads();
+    const ordenados = [...data].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+    setEmpresas(ordenados);
+    setTotalBanco(data.length);
+  }
+
+  function onClassificacaoChange(id: number, classificacao: string | null) {
+    setEmpresas(prev =>
+      prev.map(e => e.id === id ? { ...e, classificacao } : e)
+    );
+  }
+
   async function executar() {
-  setRodando(true);
-  setEtapaAtual(0);
+    setRodando(true);
+    setEtapaAtual(0);
+    const exec = await iniciarBusca();
+    setExecucaoId(exec.id);
 
-  // etapa 1 — busca
-  const exec = await iniciarBusca();
-  setExecucaoId(exec.id);
+    await new Promise<void>(resolve => {
+      const interval = setInterval(async () => {
+        const status = await getStatusExecucao(exec.id);
+        if (status.status === 'concluido') { clearInterval(interval); resolve(); }
+      }, 3000);
+    });
 
-  // aguarda busca concluir
-  await new Promise<void>(resolve => {
-    const interval = setInterval(async () => {
-      const status = await getStatusExecucao(exec.id);
-      if (status.status === 'concluido') {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 3000);
-  });
+    setEtapaAtual(1);
+    await iniciarEnriquecimento();
+    await new Promise(r => setTimeout(r, 5000));
 
-  // etapa 2 — enriquecimento
-  setEtapaAtual(1);
-  await iniciarEnriquecimento();
-  await new Promise(r => setTimeout(r, 5000)); // aguarda iniciar
+    setEtapaAtual(2);
+    await iniciarPresencaDigital();
+    await new Promise(r => setTimeout(r, 5000));
 
-  // etapa 3 — presença digital
-  setEtapaAtual(2);
-  await iniciarPresencaDigital();
-  await new Promise(r => setTimeout(r, 5000));
+    setEtapaAtual(3);
+    await fetch(`${API_URL}/api/scoring?limite=10`, { method: 'POST' });
+    await new Promise(r => setTimeout(r, 5000));
 
-  // etapa 4 — scoring
-  setEtapaAtual(3);
-  await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/api/scoring?limite=10`, { method: 'POST' });
+    setEtapaAtual(4);
+    await recarregarLeads();
+    setRodando(false);
+  }
 
-  // recarrega leads
-  setEtapaAtual(4);
-  const leads = await getLeads();
-  const ordenados = [...leads].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  setEmpresas(ordenados);
-  setTotalBanco(leads.length);
-  setRodando(false);
-}
   const quentes = empresas.filter(e => e.classificacao === 'Quente').length;
-  const mornos = empresas.filter(e => e.classificacao === 'Morno').length;
+  const mornos  = empresas.filter(e => e.classificacao === 'Morno').length;
+  const frios   = empresas.filter(e => e.classificacao === 'Frio').length;
+
+  const empresasFiltradas = filtroClasse === 'Todos' ? empresas
+    : filtroClasse === 'Sem classificação' ? empresas.filter(e => !e.classificacao)
+    : empresas.filter(e => e.classificacao === filtroClasse);
+
+  const corFiltro: Record<FiltroClasse, string> = {
+    'Todos':             'bg-gray-800 text-white',
+    'Quente':            'bg-red-500 text-white',
+    'Morno':             'bg-yellow-400 text-white',
+    'Frio':              'bg-blue-400 text-white',
+    'Sem classificação': 'bg-gray-200 text-gray-600',
+  };
+  const corInativo = 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50';
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900">Motor de Prospecção</h1>
-          <p className="text-sm text-gray-400">Busca · Enriquecimento · Scoring</p>
+      {/* Header Impulse */}
+      <div className="bg-[#0D1117] px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IB</span>
+          </div>
+          <div>
+            <h1 className="text-white text-sm font-semibold">Motor de Prospecção</h1>
+            <p className="text-gray-400 text-xs">Impulse Business · Busca · Enriquecimento · Scoring</p>
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <span>{totalBanco} leads no banco</span>
-          {quentes > 0 && <span className="text-green-600 font-medium">{quentes} quentes</span>}
+        <div className="flex items-center gap-4 text-sm">
+          <span className="text-gray-400">{totalBanco} leads</span>
+          {quentes > 0 && <span className="text-red-400 font-medium">🔥 {quentes} quentes</span>}
+          {mornos  > 0 && <span className="text-yellow-400 font-medium">🌡 {mornos} mornos</span>}
         </div>
       </div>
 
@@ -99,23 +118,15 @@ export default function Home() {
         <div className="w-72 flex-shrink-0 space-y-4">
           <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Configuração</p>
-
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Segmento</label>
               <SegmentoSelect value={segmento} onChange={v => { setSegmento(v); setCnaes([]); }} />
             </div>
-
             <div>
               <label className="text-xs text-gray-500 mb-1 block">CNAEs</label>
               <CnaeTags segmento={segmento} selecionados={cnaes} onChange={setCnaes} />
             </div>
-
-            <FiltrosForm
-              estados={estados}
-              porte={porte}
-              onChangeEstados={setEstados}
-              onChangePorte={setPorte}
-            />
+            <FiltrosForm estados={estados} porte={porte} onChangeEstados={setEstados} onChangePorte={setPorte} />
           </div>
 
           <button
@@ -127,9 +138,8 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Conteúdo principal */}
+        {/* Conteúdo */}
         <div className="flex-1 space-y-4">
-          {/* Pipeline */}
           {etapaAtual >= 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <ProgressoPipeline etapaAtual={etapaAtual} total={totalBanco} encontradas={empresas.length} />
@@ -139,10 +149,10 @@ export default function Home() {
           {/* Stats */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: 'Total', value: empresas.length, color: 'text-gray-800' },
-              { label: 'Quentes', value: quentes, color: 'text-green-600' },
-              { label: 'Mornos', value: mornos, color: 'text-yellow-600' },
-              { label: 'Com Google', value: empresas.filter(e => e.googleNota).length, color: 'text-blue-600' },
+              { label: 'Total',      value: empresas.length,                           color: 'text-gray-800'   },
+              { label: 'Quentes 🔥', value: quentes,                                   color: 'text-red-500'    },
+              { label: 'Mornos 🌡',  value: mornos,                                    color: 'text-yellow-500' },
+              { label: 'Com Google', value: empresas.filter(e => e.googleNota).length, color: 'text-blue-600'   },
             ].map(s => (
               <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
                 <p className="text-xs text-gray-400">{s.label}</p>
@@ -154,16 +164,36 @@ export default function Home() {
           {/* Tabela */}
           <div className="bg-white rounded-xl border border-gray-200">
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-700">Leads qualificados</p>
+              {/* Filtros de classificação */}
+              <div className="flex gap-2 flex-wrap">
+                {FILTROS_CLASSE.map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFiltroClasse(f)}
+                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
+                      filtroClasse === f ? corFiltro[f] : corInativo
+                    }`}
+                  >
+                    {f}{f !== 'Todos' && f !== 'Sem classificação'
+                      ? ` (${empresas.filter(e => e.classificacao === f).length})`
+                      : f === 'Sem classificação'
+                      ? ` (${empresas.filter(e => !e.classificacao).length})`
+                      : ''}
+                  </button>
+                ))}
+              </div>
               <button
                 onClick={exportarExcel}
-                className="text-xs px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="text-xs px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0"
               >
                 Exportar Excel
               </button>
             </div>
             <div className="p-4">
-              <TabelaLeads empresas={empresas} />
+              <TabelaLeads
+                empresas={empresasFiltradas}
+                onClassificacaoChange={onClassificacaoChange}
+              />
             </div>
           </div>
         </div>

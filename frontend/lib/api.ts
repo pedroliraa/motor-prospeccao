@@ -45,3 +45,12 @@ export async function exportarExcel() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export async function atualizarClassificacao(id: number, classificacao: string | null) {
+  const res = await fetch(`${API_URL}/api/leads/${id}/classificacao`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ classificacao }),
+  });
+  return res.json();
+}

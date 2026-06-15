@@ -260,6 +260,21 @@ app.post('/api/atualizar-data-abertura', async (_req, res) => {
   console.log(`Data de abertura atualizada: ${atualizadas} empresas`);
 });
 
+// classificação manual pelo SDR
+app.patch('/api/leads/:id/classificacao', async (req, res) => {
+  const { id } = req.params;
+  const { classificacao } = req.body;
+  const validas = ['Quente', 'Morno', 'Frio', null];
+  if (!validas.includes(classificacao)) {
+    return res.status(400).json({ error: 'Classificação inválida' });
+  }
+  const empresa = await prisma.empresa.update({
+    where: { id: Number(id) },
+    data: { classificacao },
+  });
+  res.json(empresa);
+});
+
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

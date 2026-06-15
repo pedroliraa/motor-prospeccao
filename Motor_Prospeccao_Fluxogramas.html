@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Prospecção Inteligente — Fluxogramas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #F3F4F6; color: #111827; line-height: 1.5; }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  h1 { font-size: 22px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #6B7280; margin-bottom: 40px; }
+
+  .section { margin-bottom: 48px; }
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #9CA3AF; margin-bottom: 12px; }
+  .section-title { font-size: 17px; font-weight: 600; color: #111827; margin-bottom: 16px; }
+
+  .card { background: #fff; border: 0.5px solid #E5E7EB; border-radius: 12px; padding: 24px; margin-bottom: 16px; overflow: hidden; }
+
+  svg { display: block; width: 100%; height: auto; }
+
+  /* Scoring table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #1E2A3A; color: #fff; font-weight: 500; text-align: left; padding: 10px 12px; }
+  td { padding: 9px 12px; border-bottom: 0.5px solid #F3F4F6; color: #374151; vertical-align: top; }
+  tr:nth-child(even) td { background: #F9FAFB; }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+  .badge-green  { background: #D1FAE5; color: #065F46; }
+  .badge-yellow { background: #FEF3C7; color: #92400E; }
+  .badge-gray   { background: #F3F4F6; color: #6B7280; }
+  .badge-blue   { background: #DBEAFE; color: #1E40AF; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 4px; margin: 2px; border: 0.5px solid #E5E7EB; color: #374151; }
+
+  /* Nota de rodapé */
+  .note { font-size: 12px; color: #9CA3AF; border-left: 3px solid #E5E7EB; padding: 8px 12px; margin-top: 12px; font-style: italic; }
+  .warn { font-size: 12px; color: #92400E; background: #FFFBEB; border-left: 3px solid #F59E0B; padding: 8px 12px; margin-top: 8px; border-radius: 0 4px 4px 0; }
+
+  /* sprint blocks */
+  .sprint { border: 0.5px solid #E5E7EB; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; }
+  .sprint-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .sprint-name { font-size: 14px; font-weight: 600; }
+  .sprint-status { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .done   { background: #D1FAE5; color: #065F46; }
+  .wip    { background: #FEF3C7; color: #92400E; }
+  .future { background: #EFF6FF; color: #1E40AF; }
+
+  .deliverables { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+  /* cost table */
+  .cost-table td:last-child { font-weight: 500; color: #1E40AF; }
+
+  /* scoring weights */
+  .weight-bar { height: 6px; border-radius: 3px; background: #DBEAFE; margin-top: 4px; }
+  .weight-fill { height: 100%; border-radius: 3px; background: #1A56DB; }
+
+  @media print { body { background: #fff; } .card { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Motor de Prospecção Inteligente</h1>
+  <p class="subtitle">Documentação técnica · Sprints realizadas · Fluxo do MVP · Roadmap · Versão 1.0 — 2026</p>
+
+  <!-- ══════════════════════════════════════════
+       DIAGRAMA 1 — FLUXO DO MVP
+  ═══════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">Diagrama 1</p>
+    <p class="section-title">Fluxo completo do MVP — ponta a ponta</p>
+    <div class="card">
+      <svg viewBox="0 0 880 700">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arrblu" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#1A56DB" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <style>
+          .t14  { font: 500 14px 'Segoe UI', Arial, sans-serif; fill: #111827; }
+          .t12  { font: 400 12px 'Segoe UI', Arial, sans-serif; fill: #6B7280; }
+          .t12b { font: 500 12px 'Segoe UI', Arial, sans-serif; fill: #374151; }
+          .t11  { font: 400 11px 'Segoe UI', Arial, sans-serif; fill: #9CA3AF; }
+        </style>
+
+        <!-- USUÁRIO -->
+        <rect x="270" y="20" width="340" height="56" rx="8" fill="#F9FAFB" stroke="#D1D5DB" stroke-width="0.5"/>
+        <text class="t14" x="440" y="44" text-anchor="middle" dominant-baseline="central">Usuário configura a busca</text>
+        <text class="t12" x="440" y="62" text-anchor="middle" dominant-baseline="central">Segmento · CNAEs · Estado · Cidade · Porte</text>
+
+        <line x1="440" y1="76" x2="440" y2="106" stroke="#6B7280" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- MÓDULO 1 -->
+        <rect x="140" y="106" width="600" height="64" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="0.5"/>
+        <text class="t14" x="350" y="130" dominant-baseline="central">Módulo 1 — Busca por CNAE</text>
+        <text class="t12" x="230" y="150" dominant-baseline="central">Lê arquivos RFB (65M registros) · filtra por CNAE + município + situação cadastral ATIVA</text>
+        <!-- fonte -->
+        <rect x="754" y="116" width="72" height="44" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="0.5"/>
+        <text class="t12b" x="790" y="134" text-anchor="middle" dominant-baseline="central">Receita</text>
+        <text class="t11"  x="790" y="150" text-anchor="middle" dominant-baseline="central">Federal</text>
+        <line x1="740" y1="138" x2="752" y2="138" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+
+        <line x1="440" y1="170" x2="440" y2="200" stroke="#6B7280" stroke-width="1" marker-end="url(#arr)"/>
+        <text class="t11" x="458" y="189" dominant-baseline="central">1.852 empresas</text>
+
+        <!-- MÓDULO 2 -->
+        <rect x="140" y="200" width="600" height="64" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="0.5"/>
+        <text class="t14" x="350" y="224" dominant-baseline="central">Módulo 2 — Enriquecimento</text>
+        <text class="t12" x="280" y="244" dominant-baseline="central">Razão social · porte · capital social · regime tributário · sócios · filiais</text>
+        <rect x="754" y="210" width="72" height="44" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="0.5"/>
+        <text class="t12b" x="790" y="228" text-anchor="middle" dominant-baseline="central">EMPRECSV</text>
+        <text class="t11"  x="790" y="244" text-anchor="middle" dominant-baseline="central">SOCIOCSV</text>
+        <line x1="740" y1="232" x2="752" y2="232" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+
+        <line x1="440" y1="264" x2="440" y2="294" stroke="#6B7280" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- MÓDULO 3 -->
+        <rect x="140" y="294" width="600" height="64" rx="8" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="0.5"/>
+        <text class="t14" x="350" y="318" dominant-baseline="central">Módulo 3 — Presença digital</text>
+        <text class="t12" x="230" y="338" dominant-baseline="central">Google Meu Negócio: nota + avaliações · Instagram: seguidores + status (próxima sprint)</text>
+        <rect x="754" y="304" width="72" height="44" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="0.5"/>
+        <text class="t12b" x="790" y="322" text-anchor="middle" dominant-baseline="central">Google</text>
+        <text class="t11"  x="790" y="338" text-anchor="middle" dominant-baseline="central">Places API</text>
+        <line x1="740" y1="326" x2="752" y2="326" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+
+        <line x1="440" y1="358" x2="440" y2="388" stroke="#6B7280" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- MÓDULO 4 -->
+        <rect x="140" y="388" width="600" height="64" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="0.5"/>
+        <text class="t14" x="350" y="412" dominant-baseline="central">Módulo 4 — Scoring com IA</text>
+        <text class="t12" x="240" y="432" dominant-baseline="central">Claude API avalia cada lead · retorna score 0–100 + classificação + justificativa textual</text>
+        <rect x="754" y="398" width="72" height="44" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="0.5"/>
+        <text class="t12b" x="790" y="416" text-anchor="middle" dominant-baseline="central">Claude</text>
+        <text class="t11"  x="790" y="432" text-anchor="middle" dominant-baseline="central">Anthropic</text>
+        <line x1="740" y1="420" x2="752" y2="420" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+
+        <line x1="440" y1="452" x2="440" y2="482" stroke="#6B7280" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- EXPORTAÇÃO -->
+        <rect x="240" y="482" width="400" height="60" rx="8" fill="#ECFDF5" stroke="#6EE7B7" stroke-width="0.5"/>
+        <text class="t14" x="440" y="506" text-anchor="middle" dominant-baseline="central">Exportação Excel (.xlsx)</text>
+        <text class="t12" x="440" y="524" text-anchor="middle" dominant-baseline="central">Ordenado por score · colorido por classificação · filtros automáticos</text>
+
+        <line x1="440" y1="538" x2="440" y2="568" stroke="#6B7280" stroke-width="1" marker-end="url(#arr)"/>
+
+        <!-- SDR -->
+        <rect x="270" y="568" width="340" height="56" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="0.5"/>
+        <text class="t14" x="440" y="592" text-anchor="middle" dominant-baseline="central">Time de SDR</text>
+        <text class="t12" x="440" y="610" text-anchor="middle" dominant-baseline="central">Abordagem priorizada pelo score · Quente primeiro</text>
+
+        <!-- BANCO -->
+        <rect x="20" y="200" width="72" height="252" rx="6" fill="#F9FAFB" stroke="#E5E7EB" stroke-width="0.5" stroke-dasharray="4 3"/>
+        <text class="t12b" x="56" y="316" text-anchor="middle" dominant-baseline="central" transform="rotate(-90 56 316)">SQLite / Prisma</text>
+        <line x1="92" y1="232" x2="140" y2="232" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="92" y1="326" x2="140" y2="326" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+        <line x1="92" y1="420" x2="140" y2="420" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="3 2"/>
+
+        <!-- FRONT END -->
+        <rect x="155" y="648" width="600" height="44" rx="8" fill="#F9FAFB" stroke="#D1D5DB" stroke-width="0.5"/>
+        <text class="t14" x="350" y="662" dominant-baseline="central">Front-end — Next.js 14 + TailwindCSS</text>
+        <text class="t12" x="250" y="680" dominant-baseline="central">Seleção de filtros · progresso em tempo real · tabela de leads · exportar Excel</text>
+        <line x1="440" y1="624" x2="440" y2="646" stroke="#D1D5DB" stroke-width="0.5" stroke-dasharray="4 3"/>
+        <text class="t11" x="460" y="638" dominant-baseline="central">aciona via REST API</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       SCORING — DETALHADO
+  ═══════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">Módulo 4 — detalhamento</p>
+    <p class="section-title">Critérios de scoring — cálculo completo e explícito</p>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%">Dimensão</th>
+            <th style="width:8%">Peso</th>
+            <th style="width:35%">Critérios avaliados</th>
+            <th style="width:20%">Pontuação máxima</th>
+            <th style="width:15%">Fonte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Porte e capital social</strong></td>
+            <td>25%</td>
+            <td>
+              Capital &gt; R$100k = alta pontuação<br>
+              Capital R$50k–100k = média<br>
+              Capital &lt; R$50k = baixa<br>
+              Porte EPP &gt; ME &gt; Demais<br>
+              Nº funcionários (&gt;10 = positivo)
+            </td>
+            <td>25 pontos</td>
+            <td>EMPRECSV / RFB</td>
+          </tr>
+          <tr>
+            <td><strong>Presença digital</strong></td>
+            <td>20%</td>
+            <td>
+              Instagram ativo (&lt;30 dias) = +10<br>
+              Instagram 1k+ seguidores = +5<br>
+              Instagram 5k+ seguidores = +10<br>
+              Engajamento alto = +5<br>
+              <em>Instagram ausente = 0 nessa dimensão</em>
+            </td>
+            <td>20 pontos</td>
+            <td>Instagram scraping</td>
+          </tr>
+          <tr>
+            <td><strong>Regime tributário</strong></td>
+            <td>15%</td>
+            <td>
+              Simples Nacional = 15 pontos (perfil-alvo)<br>
+              Lucro Presumido = 12 pontos<br>
+              Lucro Real = 10 pontos<br>
+              MEI = 3 pontos (baixa prioridade)<br>
+              Não informado = 5 pontos
+            </td>
+            <td>15 pontos</td>
+            <td>SIMPLES.CSV / RFB</td>
+          </tr>
+          <tr>
+            <td><strong>Google Meu Negócio</strong></td>
+            <td>15%</td>
+            <td>
+              Nota ≥ 4.5 + 100+ avaliações = 15<br>
+              Nota ≥ 4.0 + 50+ avaliações = 12<br>
+              Nota ≥ 3.5 + qualquer avaliação = 8<br>
+              Perfil existente sem nota = 4<br>
+              Sem perfil Google = 0
+            </td>
+            <td>15 pontos</td>
+            <td>Google Places API</td>
+          </tr>
+          <tr>
+            <td><strong>Estrutura societária</strong></td>
+            <td>10%</td>
+            <td>
+              Sócios identificados = +4<br>
+              Empresa com filiais = +3<br>
+              Empresa com &gt;5 anos = +3<br>
+              Outras empresas dos sócios = +2 (indica grupo empresarial)<br>
+              Sócios não identificados = 0
+            </td>
+            <td>10 pontos</td>
+            <td>SOCIOCSV / RFB</td>
+          </tr>
+          <tr>
+            <td><strong>Reputação</strong></td>
+            <td>10%</td>
+            <td>
+              Sem processos judiciais = 10<br>
+              Não verificado = 6 (neutro)<br>
+              1–2 processos = 3<br>
+              3+ processos = 0<br>
+              Situação cadastral irregular = –5
+            </td>
+            <td>10 pontos</td>
+            <td>JusBrasil (scraping)</td>
+          </tr>
+          <tr>
+            <td><strong>Localização</strong></td>
+            <td>5%</td>
+            <td>
+              Cidade-alvo configurada = 5<br>
+              Estado-alvo mas fora das cidades = 3<br>
+              Fora do alvo geográfico = 1<br>
+              <em>Peso baixo pois já é filtrado antes</em>
+            </td>
+            <td>5 pontos</td>
+            <td>ESTABELE / RFB</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:20px">
+        <p style="font-size:13px;font-weight:600;margin-bottom:10px;color:#111827">Classificação final (soma dos 7 critérios = 0 a 100)</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;background:#D1FAE5;border-radius:8px;padding:14px">
+            <p style="font-size:22px;font-weight:600;color:#065F46">80–100</p>
+            <p style="font-size:13px;font-weight:600;color:#065F46">🔥 Quente</p>
+            <p style="font-size:12px;color:#047857;margin-top:4px">Prioridade máxima<br>Contato imediato pelo SDR</p>
+          </div>
+          <div style="flex:1;min-width:180px;background:#FEF3C7;border-radius:8px;padding:14px">
+            <p style="font-size:22px;font-weight:600;color:#92400E">50–79</p>
+            <p style="font-size:13px;font-weight:600;color:#92400E">🌡 Morno</p>
+            <p style="font-size:12px;color:#B45309;margin-top:4px">Nutrir e qualificar<br>Contato em até 3 dias</p>
+          </div>
+          <div style="flex:1;min-width:180px;background:#F3F4F6;border-radius:8px;padding:14px">
+            <p style="font-size:22px;font-weight:600;color:#6B7280">0–49</p>
+            <p style="font-size:13px;font-weight:600;color:#6B7280">❄️ Frio</p>
+            <p style="font-size:12px;color:#9CA3AF;margin-top:4px">Lista de espera<br>Reavaliar em 30+ dias</p>
+          </div>
+        </div>
+      </div>
+      <div class="note">O score é calculado pela Claude API com base nos dados disponíveis. Campos ausentes reduzem a pontuação naquela dimensão mas não anulam o score final. O prompt é modular — trocar o segmento = trocar apenas o bloco de critérios.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       DIAGRAMA 2 — SPRINTS REALIZADAS
+  ═══════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">Diagrama 2</p>
+    <p class="section-title">Sprints realizadas — o que foi construído</p>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint 1 · Módulo 1 — Busca por CNAE</span>
+        <span class="sprint-status done">✓ Concluído</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Setup Node.js + TypeScript</span>
+        <span class="tag">Prisma ORM + SQLite</span>
+        <span class="tag">Leitura arquivos RFB em streaming</span>
+        <span class="tag">Filtro por CNAE + município + situação</span>
+        <span class="tag">1.852 empresas salvas no banco</span>
+        <span class="tag">API REST — POST /api/execucoes</span>
+      </div>
+      <div class="warn">⚠ Regime tributário ausente em ~132 empresas (cruzamento parcial) · Data de abertura e nº funcionários ainda não coletados</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint 1 · Módulo 2 — Enriquecimento</span>
+        <span class="sprint-status done">✓ Concluído</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Razão social e porte (EMPRECSV)</span>
+        <span class="tag">Capital social</span>
+        <span class="tag">Regime tributário (SIMPLES.CSV)</span>
+        <span class="tag">Sócios (SOCIOCSV)</span>
+        <span class="tag">Filiais identificadas</span>
+        <span class="tag">API REST — POST /api/enriquecimento</span>
+      </div>
+      <div class="warn">⚠ ~53 empresas sem regime preenchido · Instagram não implementado — API oficial inexistente, scraping bloqueado</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint 1 · Módulo 3 — Presença digital</span>
+        <span class="sprint-status done">✓ Concluído</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Google Meu Negócio ✓</span>
+        <span class="tag">843 empresas com nota e avaliações</span>
+        <span class="tag">Google Places API integrada</span>
+        <span class="tag">API REST — POST /api/presenca-digital</span>
+      </div>
+      <div class="warn">⚠ JusBrasil retorna 403 (bot bloqueado) — processos judiciais ficam como "não verificado" · Instagram pendente para próxima sprint</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint 1 · Módulo 4 — Scoring com IA</span>
+        <span class="sprint-status done">✓ Concluído</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Claude API integrada</span>
+        <span class="tag">Score 0–100</span>
+        <span class="tag">Classificação Quente/Morno/Frio</span>
+        <span class="tag">Justificativa textual por lead</span>
+        <span class="tag">Prompt modular por segmento</span>
+        <span class="tag">API REST — POST /api/scoring</span>
+      </div>
+      <div class="warn">⚠ Custo por token limita escala — scoring completo nas 1.852 empresas custa ~$5–8 · Calibração do prompt em andamento para aumentar leads Quentes</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint 1 · Módulo 5 — Front-end + Exportação Excel</span>
+        <span class="sprint-status done">✓ Concluído</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Next.js 14 + TailwindCSS</span>
+        <span class="tag">Seleção de segmento e CNAEs</span>
+        <span class="tag">Filtros de estado e porte</span>
+        <span class="tag">Progresso em tempo real</span>
+        <span class="tag">Tabela com score e classificação</span>
+        <span class="tag">Exportação Excel (ExcelJS)</span>
+        <span class="tag">Cores por classificação na planilha</span>
+      </div>
+      <div class="warn">⚠ Logs do back não aparecem no terminal após update do VS Code · Polling de status ainda instável — correção em andamento</div>
+    </div>
+
+    <div class="card" style="background:#F0FDF4;border-color:#86EFAC">
+      <p style="font-size:14px;font-weight:600;color:#065F46;margin-bottom:8px">Resultado atual do MVP</p>
+      <div style="display:flex;gap:24px;flex-wrap:wrap">
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">1.852</p><p style="font-size:12px;color:#047857">empresas no banco</p></div>
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">843</p><p style="font-size:12px;color:#047857">com dados Google</p></div>
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">5</p><p style="font-size:12px;color:#047857">sprints concluídas</p></div>
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">7</p><p style="font-size:12px;color:#047857">endpoints REST</p></div>
+        <div><p style="font-size:24px;font-weight:600;color:#065F46">Grátis*</p><p style="font-size:12px;color:#047857">dados RFB (principal fonte)</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       DIAGRAMA 3 — ROADMAP
+  ═══════════════════════════════════════════ -->
+  <div class="section">
+    <p class="section-label">Diagrama 3</p>
+    <p class="section-title">Roadmap — próximas sprints e melhorias</p>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint 2 · Correções imediatas</span>
+        <span class="sprint-status wip"> Realizada </span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Corrigir regime tributário ausente (~132 empresas)</span>
+        <span class="tag">Adicionar data de abertura (já no EMPRECSV)</span>
+        <span class="tag">Verificação de existência ativa da empresa</span>
+        <span class="tag">Todos os estados e cidades nos filtros</span>
+        <!-- <span class="tag">Nº de funcionários (CAGED/RAIS — dados.gov.br)</span> -->
+        <span class="tag">Corrigir logs do terminal do back</span>
+      </div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint X · Instagram + JusBrasil</span>
+        <span class="sprint-status future">📋 Planejada</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Instagram via CNPJA API (~$0.01/empresa)</span>
+        <span class="tag">Seguidores · frequência · engajamento · status</span>
+        <span class="tag">JusBrasil via Escavador API (a partir de $49/mês)</span>
+        <span class="tag">Processos judiciais por CNPJ</span>
+      </div>
+      <div class="note">Alternativa gratuita: Playwright headless com rotação de user-agent — instável mas sem custo operacional</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprint X · Web Crawling inteligente por empresa (ideia do professor)</span>
+        <span class="sprint-status future">📋 Planejada</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Bot busca cada empresa no Google</span>
+        <span class="tag">Coleta site próprio + notícias + Reclame Aqui + redes sociais</span>
+        <span class="tag">Claude API processa e resume todo o conteúdo</span>
+        <span class="tag">Gera perfil de inteligência comercial do lead</span>
+      </div>
+      <div class="note">Complexidade: média-alta · Custo estimado: ~$0.05/empresa (tokens Claude) · Playwright gratuito · Valor agregado: muito alto — perfil de inteligência vai muito além de dados cadastrais</div>
+    </div>
+
+    <div class="sprint">
+      <div class="sprint-header">
+        <span class="sprint-name">Sprints X · Produto e escala</span>
+        <span class="sprint-status future">🔮 Futuro</span>
+      </div>
+      <div class="deliverables">
+        <span class="tag">Painel web completo com histórico</span>
+        <span class="tag">WhatsApp via Evolution API</span>
+        <span class="tag">Integração CRM (HubSpot · Kommo · Pipedrive)</span>
+        <span class="tag">Multi-tenant SaaS</span>
+        <span class="tag">Monitoramento contínuo com re-score automático</span>
+      </div>
+    </div>
+
+    <!-- TABELA DE FONTES E CUSTOS -->
+    <p style="font-size:14px;font-weight:600;margin:24px 0 12px;color:#111827">Fontes de dados — opções e custos por empresa</p>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Dado</th>
+            <th>Opção gratuita</th>
+            <th>Opção paga</th>
+            <th>Custo estimado</th>
+            <th>Status atual</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Dados empresariais</strong></td>
+            <td>Receita Federal — Dados Abertos ✓</td>
+            <td>CNPJA API</td>
+            <td>~$0.01/CNPJ</td>
+            <td><span class="badge badge-green">Em uso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Regime tributário</strong></td>
+            <td>SIMPLES.CSV (RFB) ✓</td>
+            <td>CNPJA API</td>
+            <td>Incluso</td>
+            <td><span class="badge badge-green">Em uso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sócios e filiais</strong></td>
+            <td>SOCIOCSV (RFB) ✓</td>
+            <td>CNPJA API</td>
+            <td>Incluso</td>
+            <td><span class="badge badge-green">Em uso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Google Meu Negócio</strong></td>
+            <td>— (sem opção gratuita)</td>
+            <td>Google Places API ✓</td>
+            <td>~$0.032/busca</td>
+            <td><span class="badge badge-green">Em uso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Scoring com IA</strong></td>
+            <td>— (sem opção gratuita)</td>
+            <td>Claude API ✓</td>
+            <td>~$0.003/empresa</td>
+            <td><span class="badge badge-green">Em uso</span></td>
+          </tr>
+          <tr>
+            <td><strong>Instagram</strong></td>
+            <td>Scraping Playwright (instável)</td>
+            <td>CNPJA / Apify</td>
+            <td>~$0.01–0.05/empresa</td>
+            <td><span class="badge badge-yellow">Próximas sprints</span></td>
+          </tr>
+          <tr>
+            <td><strong>Processos judiciais</strong></td>
+            <td>JusBrasil scraping (bloqueado 403)</td>
+            <td>Escavador API</td>
+            <td>A partir de $49/mês</td>
+            <td><span class="badge badge-yellow">Próximas sprints</span></td>
+          </tr>
+          <tr>
+            <td><strong>Nº de funcionários</strong></td>
+            <td>CAGED/RAIS — dados.gov.br</td>
+            <td>CNPJA API</td>
+            <td>Incluso</td>
+            <td><span class="badge badge-yellow">Próximas sprints</span></td>
+          </tr>
+          <tr>
+            <td><strong>Web crawling geral</strong></td>
+            <td>Playwright (gratuito)</td>
+            <td>Apify / BrightData</td>
+            <td>~$0.05/empresa</td>
+            <td><span class="badge badge-gray">Próximas sprints</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note" style="margin-top:16px">
+      Custo total estimado por execução completa (1.852 empresas, todos os módulos pagos ativos):<br>
+      Google Places: ~$60 · Scoring Claude: ~$6 · Instagram (CNPJA): ~$18 · JusBrasil (Escavador): incluso no plano<br>
+      <strong>Total estimado: ~$84 por execução completa</strong> — amortizado pelo valor comercial dos leads gerados.
+    </div>
+  </div>
+
+  <p style="font-size:12px;color:#D1D5DB;text-align:center;margin-top:32px">Motor de Prospecção Inteligente · v1.0 · 2025 · Documento gerado automaticamente</p>
+</div>
+</body>
+</html>

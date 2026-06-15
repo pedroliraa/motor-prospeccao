@@ -7,6 +7,9 @@ export interface Empresa {
   cnaeDescricao: string | null;
   cidade: string | null;
   estado: string | null;
+  faturamentoEstimado: string | null;
+  qtdeFuncionarios: string | null;
+  dataAbertura: string | null;
   telefone1: string | null;
   email: string | null;
   porte: string | null;

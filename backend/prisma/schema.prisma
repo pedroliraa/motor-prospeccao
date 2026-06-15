@@ -32,6 +32,8 @@ model Empresa {
   capitalSocial    Float?
   regimeTributario String?
   porte            String?
+  faturamentoEstimado String?  // faixa estimada ex: "até R$ 360k/ano"
+  qtdeFuncionarios     String?  // faixa estimada ex: "1 a 19"
   dataAbertura     DateTime?
   socios           String?   // JSON serializado
 

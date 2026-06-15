@@ -5,19 +5,20 @@ import path from 'path';
 import { config } from '../../config/loadConfig.js';
 
 export interface EmpresaRFB {
-  cnpj:           string;
-  nome_fantasia:  string;
-  cnae_fiscal:    string;
+  cnpj: string;
+  nome_fantasia: string;
+  cnae_fiscal: string;
   cnae_descricao: string;
-  municipio:      string;
-  uf:             string;
-  logradouro:     string;
-  numero:         string;
-  bairro:         string;
-  cep:            string;
-  telefone1:      string;
-  telefone2:      string;
-  email:          string;
+  municipio: string;
+  uf: string;
+  logradouro: string;
+  numero: string;
+  bairro: string;
+  cep: string;
+  dataAbertura: string;
+  telefone1: string;
+  telefone2: string;
+  email: string;
 }
 
 async function lerLinhas(filePath: string, onLinha: (col: string[]) => void) {
@@ -52,8 +53,8 @@ async function carregarCnaes(): Promise<Map<string, string>> {
 export async function executarBusca(): Promise<EmpresaRFB[]> {
   const { cnaes, filtros } = config;
   const municipiosAlvo = (filtros.municipios as string[]).map((m: string) => m.toUpperCase());
-  const estados        = filtros.estados as string[];
-  const cnaeSet        = new Set(cnaes.map((c: string) => c.replace(/[-\/]/g, '')));
+  const estados = filtros.estados as string[];
+  const cnaeSet = new Set(cnaes.map((c: string) => c.replace(/[-\/]/g, '')));
 
   console.log('Carregando municípios...');
   const tabelaMunicipios = await carregarMunicipios();
@@ -82,33 +83,39 @@ export async function executarBusca(): Promise<EmpresaRFB[]> {
     await lerLinhas(path.resolve('data', arquivo), col => {
       count++;
 
-      const cnae            = (col[11] ?? '').replace(/[-\/]/g, '');
-      const uf              = (col[19] ?? '').toUpperCase();
+      const cnae = (col[11] ?? '').replace(/[-\/]/g, '');
+      const uf = (col[19] ?? '').toUpperCase();
       const municipioCodigo = col[20] ?? '';
-      const situacao        = col[5] ?? '';
+      const situacao = col[5] ?? '';
 
       if (!cnaeSet.has(cnae)) return;
       if (!estados.includes(uf)) return;
       if (codigosMunicipios.size > 0 && !codigosMunicipios.has(municipioCodigo)) return;
       if (situacao !== '02') return;
 
+      // log temporário
+      if (mapa.size < 3) {
+        console.log(`dataAbertura col[10]: "${col[10]}"`);
+      }
+
       const cnpj = (col[0] ?? '') + (col[1] ?? '') + (col[2] ?? '');
 
       if (!mapa.has(cnpj)) {
         mapa.set(cnpj, {
           cnpj,
-          nome_fantasia:  col[4] ?? '',
-          cnae_fiscal:    col[11] ?? '',
+          nome_fantasia: col[4] ?? '',
+          cnae_fiscal: col[11] ?? '',
           cnae_descricao: tabelaCnaes.get(cnae) ?? '',
-          municipio:      tabelaMunicipios.get(municipioCodigo) ?? '',
+          municipio: tabelaMunicipios.get(municipioCodigo) ?? '',
           uf,
-          logradouro:     (col[13] ?? '') + ' ' + (col[14] ?? ''),
-          numero:         col[15] ?? '',
-          bairro:         col[17] ?? '',
-          cep:            col[18] ?? '',
-          telefone1:      (col[21] ?? '') + (col[22] ?? ''),
-          telefone2:      (col[23] ?? '') + (col[24] ?? ''),
-          email:          col[27] ?? '',
+          logradouro: (col[13] ?? '') + ' ' + (col[14] ?? ''),
+          numero: col[15] ?? '',
+          bairro: col[17] ?? '',
+          cep: col[18] ?? '',
+          dataAbertura: col[10] ?? '',
+          telefone1: (col[21] ?? '') + (col[22] ?? ''),
+          telefone2: (col[23] ?? '') + (col[24] ?? ''),
+          email: col[27] ?? '',
         });
       }
     });

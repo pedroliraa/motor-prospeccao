@@ -122,9 +122,41 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
   html {
     @apply font-sans;
   }
+}
+
+/* ── Impulse Brand ── */
+@font-face {
+  font-family: 'Sansation';
+  src: url('/fonts/Sansation-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sansation';
+  src: url('/fonts/Sansation-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Sansation';
+  src: url('/fonts/Sansation-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+:root {
+  --impulse-red:    #E4002B;
+  --impulse-black:  #000000;
+  --impulse-dark:   #0D0D0D;
+  --impulse-card:   #1A1A1A;
+  --impulse-border: #2A2A2A;
+}
+
+body {
+  font-family: 'Sansation', Arial, sans-serif !important;
 }

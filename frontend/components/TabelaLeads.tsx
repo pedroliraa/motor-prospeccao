@@ -16,40 +16,13 @@ function tempoDeAbertura(dataAbertura: string | null): string {
   let meses = hoje.getMonth() - abertura.getMonth();
   if (meses < 0) { anos--; meses += 12; }
   if (anos < 0) return '—';
-  if (anos === 0) return `${meses} meses`;
-  if (meses === 0) return `${anos} anos`;
-  return `${anos} anos e ${meses} meses`;
+  if (anos === 0) return `${meses} mês${meses !== 1 ? 'es' : ''}`;
+  if (meses === 0) return `${anos} ano${anos !== 1 ? 's' : ''}`;
+  return `${anos}a ${meses}m`;
 }
 
 function isFilial(cnpj: string): boolean {
   return cnpj.length >= 12 && cnpj.substring(8, 12) !== '0001';
-}
-
-function Badge({ classificacao }: { classificacao: string | null }) {
-  if (!classificacao) return null;
-  const map: Record<string, string> = {
-    'Quente': 'bg-red-100 text-red-700',
-    'Morno':  'bg-yellow-100 text-yellow-700',
-    'Frio':   'bg-blue-100 text-blue-700',
-  };
-  return (
-    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${map[classificacao] ?? 'bg-gray-100 text-gray-500'}`}>
-      {classificacao}
-    </span>
-  );
-}
-
-function ScoreBar({ score }: { score: number | null }) {
-  if (score === null) return <span className="text-xs text-gray-400">—</span>;
-  const color = score >= 80 ? 'bg-green-500' : score >= 50 ? 'bg-yellow-400' : 'bg-gray-300';
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${score}%` }} />
-      </div>
-      <span className="text-xs font-medium text-gray-700 w-6">{score}</span>
-    </div>
-  );
 }
 
 function ClasseBotoes({ id, atual, onChange }: {
@@ -68,23 +41,32 @@ function ClasseBotoes({ id, atual, onChange }: {
   }
 
   const botoes = [
-    { label: '🔥', valor: 'Quente', ativo: 'bg-red-500 text-white', inativo: 'bg-gray-100 text-gray-400 hover:bg-red-50' },
-    { label: '🌡', valor: 'Morno',  ativo: 'bg-yellow-400 text-white', inativo: 'bg-gray-100 text-gray-400 hover:bg-yellow-50' },
-    { label: '❄️', valor: 'Frio',   ativo: 'bg-blue-400 text-white', inativo: 'bg-gray-100 text-gray-400 hover:bg-blue-50' },
+    { label: '🔥', valor: 'Quente', bg: '#E4002B' },
+    { label: '🌡', valor: 'Morno',  bg: '#CA8A04' },
+    { label: '❄️', valor: 'Frio',   bg: '#2563EB' },
   ];
 
   return (
-    <div className={`flex gap-1 ${salvando ? 'opacity-50' : ''}`}>
-      {botoes.map(b => (
-        <button
-          key={b.valor}
-          onClick={() => selecionar(b.valor)}
-          title={b.valor}
-          className={`text-xs px-2 py-0.5 rounded-full transition-colors ${atual === b.valor ? b.ativo : b.inativo}`}
-        >
-          {b.label}
-        </button>
-      ))}
+    <div className={`flex gap-1 ${salvando ? 'opacity-40' : ''}`}>
+      {botoes.map(b => {
+        const ativo = atual === b.valor;
+        return (
+          <button
+            key={b.valor}
+            onClick={() => selecionar(b.valor)}
+            title={b.valor}
+            className="text-xs px-2 py-0.5 rounded-full transition-all"
+            style={{
+              background: ativo ? b.bg : '#2A2A2A',
+              color:      ativo ? '#fff' : '#6B7280',
+              border:     ativo ? `1px solid ${b.bg}` : '1px solid #3A3A3A',
+              transform:  ativo ? 'scale(1.1)' : 'scale(1)',
+            }}
+          >
+            {b.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -102,8 +84,8 @@ export default function TabelaLeads({ empresas, onClassificacaoChange }: Props) 
   }
 
   function SortIcon({ k }: { k: SortKey }) {
-    if (sortKey !== k) return <span className="text-gray-300 ml-1">↕</span>;
-    return <span className="text-blue-500 ml-1">{sortAsc ? '↑' : '↓'}</span>;
+    if (sortKey !== k) return <span style={{ color: '#3A3A3A' }} className="ml-1">↕</span>;
+    return <span style={{ color: '#E4002B' }} className="ml-1">{sortAsc ? '↑' : '↓'}</span>;
   }
 
   const filtradas = empresas
@@ -121,10 +103,10 @@ export default function TabelaLeads({ empresas, onClassificacaoChange }: Props) 
     })
     .sort((a, b) => {
       let va: any, vb: any;
-      if (sortKey === 'googleNota') { va = a.googleNota ?? -1; vb = b.googleNota ?? -1; }
+      if (sortKey === 'googleNota')        { va = a.googleNota ?? -1;  vb = b.googleNota ?? -1; }
       else if (sortKey === 'nomeFantasia') { va = (a.nomeFantasia || a.razaoSocial || '').toLowerCase(); vb = (b.nomeFantasia || b.razaoSocial || '').toLowerCase(); }
-      else if (sortKey === 'cidade')   { va = (a.cidade ?? '').toLowerCase(); vb = (b.cidade ?? '').toLowerCase(); }
-      else if (sortKey === 'tempoAbertura') { va = a.dataAbertura ? new Date(a.dataAbertura).getTime() : 0; vb = b.dataAbertura ? new Date(b.dataAbertura).getTime() : 0; }
+      else if (sortKey === 'cidade')       { va = (a.cidade ?? '').toLowerCase(); vb = (b.cidade ?? '').toLowerCase(); }
+      else if (sortKey === 'tempoAbertura'){ va = a.dataAbertura ? new Date(a.dataAbertura).getTime() : 0; vb = b.dataAbertura ? new Date(b.dataAbertura).getTime() : 0; }
       if (va < vb) return sortAsc ? -1 : 1;
       if (va > vb) return sortAsc ? 1 : -1;
       return 0;
@@ -132,7 +114,7 @@ export default function TabelaLeads({ empresas, onClassificacaoChange }: Props) 
 
   if (empresas.length === 0) {
     return (
-      <div className="text-center py-16 text-gray-400 text-sm">
+      <div className="text-center py-16 text-sm" style={{ color: '#4B5563' }}>
         Nenhum lead encontrado. Execute uma busca para começar.
       </div>
     );
@@ -140,81 +122,124 @@ export default function TabelaLeads({ empresas, onClassificacaoChange }: Props) 
 
   return (
     <div className="space-y-3">
-      {/* Buscador */}
       <input
         type="text"
         placeholder="Buscar por nome, cidade, CNPJ, telefone ou e-mail..."
         value={busca}
         onChange={e => setBusca(e.target.value)}
-        className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full text-sm rounded-lg px-3 py-2 text-white placeholder-gray-600 transition-all"
+        style={{ background: '#0D0D0D', border: '1px solid #2A2A2A', outline: 'none' }}
+        onFocus={e => (e.target.style.borderColor = '#E4002B')}
+        onBlur={e  => (e.target.style.borderColor = '#2A2A2A')}
       />
-      <p className="text-xs text-gray-400">{filtradas.length} de {empresas.length} leads</p>
+      <p className="text-xs" style={{ color: '#4B5563' }}>
+        {filtradas.length} de {empresas.length} leads
+      </p>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-100">
-              <th onClick={() => toggleSort('nomeFantasia')} className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4 cursor-pointer select-none hover:text-gray-600">
+            <tr style={{ borderBottom: '1px solid #2A2A2A' }}>
+              <th onClick={() => toggleSort('nomeFantasia')} className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest cursor-pointer select-none hover:text-[#E4002B]" style={{ color: '#6B7280' }}>
                 Empresa <SortIcon k="nomeFantasia" />
               </th>
-              <th onClick={() => toggleSort('cidade')} className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4 cursor-pointer select-none hover:text-gray-600">
+              <th onClick={() => toggleSort('cidade')} className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest cursor-pointer select-none hover:text-[#E4002B]" style={{ color: '#6B7280' }}>
                 Cidade <SortIcon k="cidade" />
               </th>
-              <th className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4">Contato</th>
-              <th className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4">Regime</th>
-              <th className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4">Faturamento</th>
-              <th onClick={() => toggleSort('tempoAbertura')} className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4 cursor-pointer select-none hover:text-gray-600">
+              <th className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+                Contato
+              </th>
+              <th className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+                Regime
+              </th>
+              <th className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+                Faturamento
+              </th>
+              <th onClick={() => toggleSort('tempoAbertura')} className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest cursor-pointer select-none hover:text-[#E4002B]" style={{ color: '#6B7280' }}>
                 Tempo <SortIcon k="tempoAbertura" />
               </th>
-              <th onClick={() => toggleSort('googleNota')} className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3 pr-4 cursor-pointer select-none hover:text-gray-600">
+              <th onClick={() => toggleSort('googleNota')} className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest cursor-pointer select-none hover:text-[#E4002B]" style={{ color: '#6B7280' }}>
                 Google <SortIcon k="googleNota" />
               </th>
-              <th className="text-left text-xs font-medium text-gray-400 uppercase tracking-wide pb-3">Classificar</th>
+              <th className="text-left pb-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+                Classificar
+              </th>
             </tr>
           </thead>
           <tbody>
             {filtradas.map(emp => (
-              <tr key={emp.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+              <tr
+                key={emp.id}
+                className="transition-colors hover:bg-[#111111]"
+                style={{ borderBottom: '1px solid #1E1E1E' }}
+              >
                 <td className="py-3 pr-4">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-medium text-gray-800 truncate max-w-[180px]">
+                    <span className="font-semibold truncate max-w-[180px]" style={{ color: '#F9FAFB' }}>
                       {emp.nomeFantasia || emp.razaoSocial || '—'}
                     </span>
                     {isFilial(emp.cnpj) && (
-                      <span className="text-xs bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded font-medium flex-shrink-0">
-                        filial
+                      <span
+                        className="text-xs px-1.5 py-0.5 rounded font-bold flex-shrink-0"
+                        style={{ background: '#1A0008', color: '#E4002B', border: '1px solid #E4002B' }}
+                      >
+                        FILIAL
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-400 mt-0.5">{emp.cnae}</div>
+                  <div className="text-xs mt-0.5" style={{ color: '#4B5563' }}>{emp.cnae}</div>
                 </td>
-                <td className="py-3 pr-4 text-gray-600 whitespace-nowrap text-xs">
+
+                <td className="py-3 pr-4 whitespace-nowrap text-xs" style={{ color: '#9CA3AF' }}>
                   {emp.cidade}/{emp.estado}
                 </td>
+
                 <td className="py-3 pr-4">
                   {emp.telefone1 ? (
-                    <a href={`tel:${emp.telefone1}`} className="text-xs text-blue-600 hover:underline block">
+                    <a
+                      href={`tel:${emp.telefone1}`}
+                      className="text-xs font-medium block hover:underline"
+                      style={{ color: '#E4002B' }}
+                    >
                       {emp.telefone1.replace(/(\d{2})(\d{4,5})(\d{4})/, '($1) $2-$3')}
                     </a>
-                  ) : <span className="text-xs text-gray-400">—</span>}
+                  ) : (
+                    <span className="text-xs" style={{ color: '#374151' }}>—</span>
+                  )}
                   {emp.email && (
-                    <a href={`mailto:${emp.email}`} className="text-xs text-gray-400 hover:underline block truncate max-w-[140px]">
+                    <a
+                      href={`mailto:${emp.email}`}
+                      className="text-xs block truncate max-w-[140px] hover:underline"
+                      style={{ color: '#4B5563' }}
+                    >
                       {emp.email.toLowerCase()}
                     </a>
                   )}
                 </td>
-                <td className="py-3 pr-4 text-xs text-gray-600">
+
+                <td className="py-3 pr-4 text-xs whitespace-nowrap" style={{ color: '#9CA3AF' }}>
                   {emp.regimeTributario ?? '—'}
                 </td>
-                <td className="py-3 pr-4 text-xs text-gray-600">
+
+                <td className="py-3 pr-4 text-xs whitespace-nowrap" style={{ color: '#9CA3AF' }}>
                   {emp.faturamentoEstimado ?? '—'}
                 </td>
-                <td className="py-3 pr-4 text-xs text-gray-500 whitespace-nowrap">
+
+                <td className="py-3 pr-4 text-xs whitespace-nowrap" style={{ color: '#6B7280' }}>
                   {tempoDeAbertura(emp.dataAbertura)}
                 </td>
-                <td className="py-3 pr-4 text-xs text-gray-600 whitespace-nowrap">
-                  {emp.googleNota ? `${emp.googleNota}★ (${emp.googleAvaliacoes})` : '—'}
+
+                <td className="py-3 pr-4 text-xs whitespace-nowrap">
+                  {emp.googleNota ? (
+                    <span style={{ color: '#FCD34D' }}>
+                      {emp.googleNota}★{' '}
+                      <span style={{ color: '#6B7280' }}>({emp.googleAvaliacoes})</span>
+                    </span>
+                  ) : (
+                    <span style={{ color: '#374151' }}>—</span>
+                  )}
                 </td>
+
                 <td className="py-3">
                   <ClasseBotoes
                     id={emp.id}

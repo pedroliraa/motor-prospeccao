@@ -51,11 +51,12 @@ export default function CnaeTags({ segmento, selecionados, onChange }: Props) {
           <button
             key={op.codigo}
             onClick={() => toggle(op.codigo)}
-            className={`text-xs px-3 py-1 rounded-full border transition-colors ${
-              ativo
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
-            }`}
+            className="text-xs px-3 py-1 rounded-full transition-colors"
+            style={{
+              background:  ativo ? '#E4002B' : '#0D0D0D',
+              color:       ativo ? '#FFFFFF' : '#9CA3AF',
+              border:      ativo ? '1px solid #E4002B' : '1px solid #2A2A2A',
+            }}
           >
             {op.codigo} — {op.descricao}
           </button>

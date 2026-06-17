@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import SegmentoSelect from '../components/SegmentoSelect';
 import CnaeTags from '../components/CnaeTags';
 import FiltrosForm from '../components/FiltrosForm';
@@ -14,15 +15,15 @@ const FILTROS_CLASSE = ['Todos', 'Quente', 'Morno', 'Frio', 'Sem classificação
 type FiltroClasse = typeof FILTROS_CLASSE[number];
 
 export default function Home() {
-  const [segmento, setSegmento]         = useState('Material de Construção');
-  const [cnaes, setCnaes]               = useState(['4744099', '4744003', '4744001']);
-  const [estados, setEstados]           = useState(['PB']);
-  const [porte, setPorte]               = useState(['ME', 'EPP']);
-  const [empresas, setEmpresas]         = useState<Empresa[]>([]);
-  const [etapaAtual, setEtapaAtual]     = useState(-1);
-  const [execucaoId, setExecucaoId]     = useState<number | null>(null);
-  const [rodando, setRodando]           = useState(false);
-  const [totalBanco, setTotalBanco]     = useState(0);
+  const [segmento, setSegmento] = useState('Material de Construção');
+  const [cnaes, setCnaes] = useState(['4744099', '4744003', '4744001']);
+  const [estados, setEstados] = useState(['PB']);
+  const [porte, setPorte] = useState(['ME', 'EPP']);
+  const [empresas, setEmpresas] = useState<Empresa[]>([]);
+  const [etapaAtual, setEtapaAtual] = useState(-1);
+  const [execucaoId, setExecucaoId] = useState<number | null>(null);
+  const [rodando, setRodando] = useState(false);
+  const [totalBanco, setTotalBanco] = useState(0);
   const [filtroClasse, setFiltroClasse] = useState<FiltroClasse>('Todos');
 
   useEffect(() => {
@@ -41,9 +42,7 @@ export default function Home() {
   }
 
   function onClassificacaoChange(id: number, classificacao: string | null) {
-    setEmpresas(prev =>
-      prev.map(e => e.id === id ? { ...e, classificacao } : e)
-    );
+    setEmpresas(prev => prev.map(e => e.id === id ? { ...e, classificacao } : e));
   }
 
   async function executar() {
@@ -77,47 +76,44 @@ export default function Home() {
   }
 
   const quentes = empresas.filter(e => e.classificacao === 'Quente').length;
-  const mornos  = empresas.filter(e => e.classificacao === 'Morno').length;
-  const frios   = empresas.filter(e => e.classificacao === 'Frio').length;
+  const mornos = empresas.filter(e => e.classificacao === 'Morno').length;
 
-  const empresasFiltradas = filtroClasse === 'Todos' ? empresas
-    : filtroClasse === 'Sem classificação' ? empresas.filter(e => !e.classificacao)
-    : empresas.filter(e => e.classificacao === filtroClasse);
-
-  const corFiltro: Record<FiltroClasse, string> = {
-    'Todos':             'bg-gray-800 text-white',
-    'Quente':            'bg-red-500 text-white',
-    'Morno':             'bg-yellow-400 text-white',
-    'Frio':              'bg-blue-400 text-white',
-    'Sem classificação': 'bg-gray-200 text-gray-600',
-  };
-  const corInativo = 'bg-white border border-gray-200 text-gray-500 hover:bg-gray-50';
+  const empresasFiltradas =
+    filtroClasse === 'Todos' ? empresas :
+      filtroClasse === 'Sem classificação' ? empresas.filter(e => !e.classificacao) :
+        empresas.filter(e => e.classificacao === filtroClasse);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      {/* Header Impulse */}
-      <div className="bg-[#0D1117] px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-xs font-bold">IB</span>
-          </div>
-          <div>
-            <h1 className="text-white text-sm font-semibold">Motor de Prospecção</h1>
-            <p className="text-gray-400 text-xs">Impulse Business · Busca · Enriquecimento · Scoring</p>
+    <div
+      className="min-h-screen w-full"
+      style={{
+        background: '#0D0D0D',
+        fontFamily: "'Sansation', Arial, sans-serif",
+        minHeight: '100vh',
+      }}
+    >
+      {/* ── NAVBAR ── */}
+      <header className="bg-white border-b-2 border-[#E4002B] px-8 py-0 fixed top-0 left-0 right-0 z-50">
+        <div className="max-w-screen-xl mx-auto flex items-center justify-between h-16">
+          <div className="flex items-center gap-5">
+            <img src="/impulse-logo.png" alt="Impulse B2B" style={{ height: '80px', width: 'auto' }} />
+            <div className="w-px h-8 bg-[#E4002B]" />
+            <div>
+              <p className="text-black text-sm font-bold tracking-wide leading-tight">Motor de Prospecção</p>
+              <p className="text-gray-400 text-xs leading-tight">Busca · Enriquecimento · Scoring</p>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <span className="text-gray-400">{totalBanco} leads</span>
-          {quentes > 0 && <span className="text-red-400 font-medium">🔥 {quentes} quentes</span>}
-          {mornos  > 0 && <span className="text-yellow-400 font-medium">🌡 {mornos} mornos</span>}
-        </div>
-      </div>
+      </header>
 
-      <div className="flex gap-6 p-6 max-w-screen-xl mx-auto">
+      {/* ── CORPO ── */}
+      <div className="flex gap-6 p-6 pt-20 max-w-screen-xl mx-auto">
         {/* Sidebar */}
         <div className="w-72 flex-shrink-0 space-y-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">Configuração</p>
+          <div className="rounded-xl p-4 space-y-4" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#E4002B' }}>
+              Configuração
+            </p>
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Segmento</label>
               <SegmentoSelect value={segmento} onChange={v => { setSegmento(v); setCnaes([]); }} />
@@ -132,72 +128,81 @@ export default function Home() {
           <button
             onClick={executar}
             disabled={rodando || cnaes.length === 0}
-            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-xl transition-colors"
+            className="w-full py-3 text-white text-sm font-bold rounded-xl transition-all uppercase tracking-widest disabled:opacity-40"
+            style={{ background: rodando ? '#555' : '#E4002B' }}
           >
             {rodando ? 'Processando...' : 'Executar busca'}
           </button>
         </div>
 
-        {/* Conteúdo */}
+        {/* Conteúdo principal */}
         <div className="flex-1 space-y-4">
           {etapaAtual >= 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <div className="rounded-xl p-4" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
               <ProgressoPipeline etapaAtual={etapaAtual} total={totalBanco} encontradas={empresas.length} />
             </div>
           )}
 
-          {/* Stats */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: 'Total',      value: empresas.length,                           color: 'text-gray-800'   },
-              { label: 'Quentes 🔥', value: quentes,                                   color: 'text-red-500'    },
-              { label: 'Mornos 🌡',  value: mornos,                                    color: 'text-yellow-500' },
-              { label: 'Com Google', value: empresas.filter(e => e.googleNota).length, color: 'text-blue-600'   },
+              { label: 'Total', value: empresas.length, cor: '#6B7280', bg: '#F3F4F6', border: '#2A2A2A' },
+              { label: 'Quentes 🔥', value: quentes, cor: '#FFFFFF', bg: '#E4002B', border: '#E4002B' },
+              { label: 'Mornos 🌡', value: mornos, cor: '#FFFFFF', bg: '#CA8A04', border: '#CA8A04' },
+              { label: 'Com Google', value: empresas.filter(e => e.googleNota).length, cor: '#6B7280', bg: '#F3F4F6', border: '#2A2A2A' },
             ].map(s => (
-              <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4">
-                <p className="text-xs text-gray-400">{s.label}</p>
-                <p className={`text-2xl font-semibold mt-1 ${s.color}`}>{s.value}</p>
+              <div key={s.label} className="rounded-xl p-4" style={{ background: s.bg, border: `1px solid ${s.border}` }}>
+                <p className="text-xs font-bold uppercase tracking-wide" style={{ color: s.cor, opacity: 0.7 }}>{s.label}</p>
+                <p className="text-2xl font-bold mt-1" style={{ color: s.cor }}>{s.value}</p>
               </div>
             ))}
           </div>
 
-          {/* Tabela */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              {/* Filtros de classificação */}
+          <div className="rounded-xl" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
+            <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{ borderBottom: '1px solid #2A2A2A' }}>
               <div className="flex gap-2 flex-wrap">
-                {FILTROS_CLASSE.map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setFiltroClasse(f)}
-                    className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-colors ${
-                      filtroClasse === f ? corFiltro[f] : corInativo
-                    }`}
-                  >
-                    {f}{f !== 'Todos' && f !== 'Sem classificação'
-                      ? ` (${empresas.filter(e => e.classificacao === f).length})`
-                      : f === 'Sem classificação'
-                      ? ` (${empresas.filter(e => !e.classificacao).length})`
-                      : ''}
-                  </button>
-                ))}
+                {FILTROS_CLASSE.map(f => {
+                  const ativo = filtroClasse === f;
+                  const bgAtivo =
+                    f === 'Quente' ? '#E4002B' :
+                      f === 'Morno' ? '#CA8A04' :
+                        f === 'Frio' ? '#2563EB' :
+                          f === 'Sem classificação' ? '#374151' : '#F9FAFB';
+                  const txtAtivo = f === 'Todos' ? '#000000' : '#FFFFFF';
+                  const count =
+                    f === 'Todos' ? null :
+                      f === 'Sem classificação' ? empresas.filter(e => !e.classificacao).length :
+                        empresas.filter(e => e.classificacao === f).length;
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => setFiltroClasse(f)}
+                      className="text-xs px-3 py-1.5 rounded-lg font-bold transition-all uppercase tracking-wide"
+                      style={{
+                        background: ativo ? bgAtivo : '#2A2A2A',
+                        color: ativo ? txtAtivo : '#6B7280',
+                        border: ativo ? `1px solid ${bgAtivo}` : '1px solid #3A3A3A',
+                      }}
+                    >
+                      {f}{count !== null ? ` (${count})` : ''}
+                    </button>
+                  );
+                })}
               </div>
               <button
                 onClick={exportarExcel}
-                className="text-xs px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors flex-shrink-0"
+                className="text-xs px-4 py-1.5 text-white rounded-lg font-bold transition-all flex-shrink-0 uppercase tracking-wide"
+                style={{ background: '#E4002B', border: '1px solid #E4002B' }}
               >
                 Exportar Excel
               </button>
             </div>
             <div className="p-4">
-              <TabelaLeads
-                empresas={empresasFiltradas}
-                onClassificacaoChange={onClassificacaoChange}
-              />
+              <TabelaLeads empresas={empresasFiltradas} onClassificacaoChange={onClassificacaoChange} />
             </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

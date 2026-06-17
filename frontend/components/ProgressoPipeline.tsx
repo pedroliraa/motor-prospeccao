@@ -22,36 +22,54 @@ export default function ProgressoPipeline({ etapaAtual, total, encontradas }: Pr
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>{label}</span>
-        <span>{pct}%</span>
+      <div className="flex justify-between text-xs">
+        <span style={{ color: concluido ? '#E4002B' : '#9CA3AF' }}>{label}</span>
+        <span style={{ color: '#E4002B' }} className="font-bold">{pct}%</span>
       </div>
-      <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div className="h-full bg-blue-600 rounded-full transition-all duration-500"
-          style={{ width: `${pct}%` }} />
+
+      {/* Barra de progresso */}
+      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: '#2A2A2A' }}>
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: '#E4002B' }}
+        />
       </div>
-      <div className="flex gap-3">
+
+      {/* Etapas */}
+      <div className="flex gap-4 flex-wrap">
         {ETAPAS.map((e, i) => {
           const done   = concluido || i < etapaAtual;
           const active = !concluido && i === etapaAtual;
           return (
             <div key={e.key} className="flex items-center gap-1.5">
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium ${
-                done   ? 'bg-green-100 text-green-700' :
-                active ? 'bg-blue-100 text-blue-700'  :
-                         'bg-gray-100 text-gray-400'
-              }`}>
+              <div
+                className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{
+                  background: done   ? '#1A0008' : active ? '#E4002B' : '#2A2A2A',
+                  color:      done   ? '#E4002B' : active ? '#FFFFFF' : '#4B5563',
+                  border:     done   ? '1px solid #E4002B' : active ? 'none' : '1px solid #3A3A3A',
+                }}
+              >
                 {done ? '✓' : i + 1}
               </div>
-              <span className={`text-xs ${active ? 'font-medium text-gray-800' : done ? 'text-green-700' : 'text-gray-400'}`}>
+              <span
+                className="text-xs"
+                style={{
+                  color:      done ? '#E4002B' : active ? '#F9FAFB' : '#4B5563',
+                  fontWeight: active ? 600 : 400,
+                }}
+              >
                 {e.label}
               </span>
             </div>
           );
         })}
       </div>
+
       {total > 0 && (
-        <p className="text-xs text-gray-500">{encontradas} de {total} empresas processadas</p>
+        <p className="text-xs" style={{ color: '#4B5563' }}>
+          {encontradas} de {total} empresas processadas
+        </p>
       )}
     </div>
   );

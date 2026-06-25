@@ -5,8 +5,12 @@ export async function getLeads(): Promise<any[]> {
   return res.json();
 }
 
-export async function iniciarBusca(): Promise<{ id: number; status: string }> {
-  const res = await fetch(`${API_URL}/api/execucoes`, { method: 'POST' });
+export async function iniciarBusca(somentePrimario = false) {
+  const res = await fetch(`${API_URL}/api/execucoes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ somentePrimario }),
+  });
   return res.json();
 }
 
@@ -44,6 +48,24 @@ export async function exportarExcel() {
   a.download = 'leads_qualificados.xlsx';
   a.click();
   URL.revokeObjectURL(url);
+}
+
+export async function getEtiquetas() {
+  const res = await fetch(`${API_URL}/api/etiquetas`);
+  return res.json();
+}
+
+export async function criarEtiqueta(nome: string, cor: string) {
+  const res = await fetch(`${API_URL}/api/etiquetas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nome, cor }),
+  });
+  return res.json();
+}
+
+export async function deletarEtiqueta(id: number) {
+  await fetch(`${API_URL}/api/etiquetas/${id}`, { method: 'DELETE' });
 }
 
 export async function atualizarClassificacao(id: number, classificacao: string | null) {

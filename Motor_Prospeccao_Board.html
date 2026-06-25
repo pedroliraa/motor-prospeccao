@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motor de Prospecção — Board Ágil</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0D0D0D;
+      color: #F9FAFB;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: #fff;
+      border-bottom: 3px solid #E4002B;
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #E4002B;
+      letter-spacing: -0.5px;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 28px;
+      background: #E4002B;
+    }
+
+    .header-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .header-sub {
+      font-size: 11px;
+      color: #9CA3AF;
+    }
+
+    .header-meta {
+      font-size: 12px;
+      color: #6B7280;
+    }
+
+    .sprint-badge {
+      background: #E4002B;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 20px 32px 0;
+      border-bottom: 1px solid #2A2A2A;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      color: #6B7280;
+      border: 1px solid transparent;
+      border-bottom: none;
+      transition: all .2s;
+    }
+
+    .tab.active {
+      background: #1A1A1A;
+      color: #fff;
+      border-color: #2A2A2A;
+    }
+
+    .tab:hover:not(.active) {
+      color: #E4002B;
+    }
+
+    /* CONTENT */
+    .content {
+      padding: 24px 32px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* SPRINT HEADER */
+    .sprint-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .sprint-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sprint-dates {
+      font-size: 12px;
+      color: #6B7280;
+      margin-top: 2px;
+    }
+
+    .sprint-progress {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .progress-bar {
+      width: 200px;
+      height: 8px;
+      background: #2A2A2A;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #E4002B;
+      border-radius: 4px;
+      transition: width .5s;
+    }
+
+    .progress-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: #E4002B;
+    }
+
+    /* KANBAN */
+    .kanban {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .kanban-col {
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .kanban-col-header {
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kanban-col-header.backlog {
+      background: #111;
+      color: #6B7280;
+      border-bottom: 2px solid #2A2A2A;
+    }
+
+    .kanban-col-header.todo {
+      background: #1a1510;
+      color: #FCD34D;
+      border-bottom: 2px solid #FCD34D;
+    }
+
+    .kanban-col-header.doing {
+      background: #1a0a0a;
+      color: #E4002B;
+      border-bottom: 2px solid #E4002B;
+    }
+
+    .kanban-col-header.done {
+      background: #0a1a0a;
+      color: #4ADE80;
+      border-bottom: 2px solid #4ADE80;
+    }
+
+    .kanban-col-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 200px;
+    }
+
+    /* CARDS */
+    .card {
+      background: #111;
+      border: 1px solid #2A2A2A;
+      border-radius: 8px;
+      padding: 12px;
+      cursor: default;
+      transition: border-color .2s;
+    }
+
+    .card:hover {
+      border-color: #E4002B;
+    }
+
+    .card-id {
+      font-size: 10px;
+      color: #4B5563;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F9FAFB;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 11px;
+      color: #6B7280;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .tag-front {
+      background: #1e1a4a;
+      color: #818CF8;
+      border: 1px solid #312e81;
+    }
+
+    .tag-back {
+      background: #1a2e1a;
+      color: #4ADE80;
+      border: 1px solid #14532d;
+    }
+
+    .tag-bug {
+      background: #2a0a0a;
+      color: #F87171;
+      border: 1px solid #7f1d1d;
+    }
+
+    .tag-feat {
+      background: #1a0a18;
+      color: #C084FC;
+      border: 1px solid #581c87;
+    }
+
+    .tag-data {
+      background: #1a1810;
+      color: #FCD34D;
+      border: 1px solid #78350f;
+    }
+
+    .card-priority {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .p-high {
+      background: #3d0a0a;
+      color: #E4002B;
+      border: 1px solid #E4002B;
+    }
+
+    .p-medium {
+      background: #2a1f0a;
+      color: #FCD34D;
+      border: 1px solid #FCD34D;
+    }
+
+    .p-low {
+      background: #0a1a18;
+      color: #4ADE80;
+      border: 1px solid #4ADE80;
+    }
+
+    .count-badge {
+      background: #2A2A2A;
+      color: #9CA3AF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 8px;
+      border-radius: 10px;
+    }
+
+    /* VELOCITY / STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #4B5563;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 4px 0 2px;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    /* TIMELINE */
+    .timeline {
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #2A2A2A;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #E4002B;
+      border: 2px solid #0D0D0D;
+    }
+
+    .timeline-item.done::before {
+      background: #4ADE80;
+    }
+
+    .timeline-item.future::before {
+      background: #2A2A2A;
+    }
+
+    .timeline-date {
+      font-size: 11px;
+      color: #E4002B;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .timeline-item.done .timeline-date {
+      color: #4ADE80;
+    }
+
+    .timeline-item.future .timeline-date {
+      color: #4B5563;
+    }
+
+    .timeline-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #F9FAFB;
+    }
+
+    .timeline-desc {
+      font-size: 12px;
+      color: #6B7280;
+      margin-top: 4px;
+    }
+
+    .timeline-delivs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    /* METHODOLOGY */
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .method-card {
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .method-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .method-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #F9FAFB;
+      margin-bottom: 8px;
+    }
+
+    .method-text {
+      font-size: 12px;
+      color: #6B7280;
+      line-height: 1.6;
+    }
+
+    .method-highlight {
+      color: #E4002B;
+      font-weight: 600;
+    }
+
+    /* DEFINITION */
+    .def-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .def-table th {
+      background: #111;
+      color: #E4002B;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid #2A2A2A;
+    }
+
+    .def-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1A1A1A;
+      color: #9CA3AF;
+      vertical-align: top;
+    }
+
+    .def-table tr:hover td {
+      background: #111;
+    }
+
+    .def-table td:first-child {
+      color: #F9FAFB;
+      font-weight: 600;
+    }
+
+    /* BACKLOG */
+    .backlog-section {
+      margin-bottom: 28px;
+    }
+
+    .backlog-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #6B7280;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #2A2A2A;
+    }
+
+    .backlog-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px;
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .backlog-item:hover {
+      border-color: #3A3A3A;
+    }
+
+    .backlog-item-left {
+      flex: 1;
+    }
+
+    .backlog-item-id {
+      font-size: 10px;
+      color: #4B5563;
+      font-weight: 700;
+    }
+
+    .backlog-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F9FAFB;
+      margin: 2px 0;
+    }
+
+    .backlog-item-desc {
+      font-size: 11px;
+      color: #6B7280;
+    }
+
+    .backlog-item-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #F9FAFB;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: #6B7280;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <img src="frontend/public/impulse-logo.png" alt="Impulse B2B" style="height: 80px; width: auto;">
+      <!-- <div class="header-divider"></div> -->
+      <div>
+        <div class="header-title">Motor de Prospecção — Board Ágil</div>
+        <div class="header-sub">Gerenciamento de sprints · Metodologia Scrum</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="header-meta">Projeto iniciado: Maio 2026</span>
+      <span class="sprint-badge">Sprint 3 ativa</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('sprint')">🏃 Sprint Atual</div>
+    <div class="tab" onclick="showTab('kanban')">📋 Kanban</div>
+    <div class="tab" onclick="showTab('backlog')">📦 Backlog</div>
+    <div class="tab" onclick="showTab('timeline')">🗓 Roadmap</div>
+    <div class="tab" onclick="showTab('method')">📚 Metodologia</div>
+  </div>
+
+  <!-- ═══════════════ SPRINT ATUAL ═══════════════ -->
+  <div class="content">
+    <div id="tab-sprint" class="tab-panel active">
+
+      <div class="sprint-header">
+        <div>
+          <div class="sprint-title">Sprint 3 — Front-end + Funcionários</div>
+          <div class="sprint-dates">10 jun 2026 → 17 jun 2026 · Reunião de entrega: quarta 17/06</div>
+        </div>
+        <div class="sprint-progress">
+          <div>
+            <div style="font-size:11px;color:#6B7280;margin-bottom:4px;text-align:right">Progresso</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:45%"></div>
+              </div>
+              <span class="progress-text">45%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total de itens</div>
+          <div class="stat-value" style="color:#F9FAFB">9</div>
+          <div class="stat-sub">nesta sprint</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Concluídos</div>
+          <div class="stat-value" style="color:#4ADE80">4</div>
+          <div class="stat-sub">identidade visual, classificação manual, buscador, ordenação</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Em andamento</div>
+          <div class="stat-value" style="color:#E4002B">5</div>
+          <div class="stat-sub">front + CAGED</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Bloqueados</div>
+          <div class="stat-value" style="color:#FCD34D">0</div>
+          <div class="stat-sub">nenhum impedimento</div>
+        </div>
+      </div>
+
+      <!-- ITENS DA SPRINT -->
+      <div class="section-title">Itens da Sprint 3</div>
+
+      <!-- CONCLUÍDOS -->
+      <div class="backlog-section">
+        <div class="backlog-section-title">✅ Concluídos</div>
+
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-01</div>
+            <div class="backlog-item-title">Identidade visual Impulse</div>
+            <div class="backlog-item-desc">Header branco com logo, fundo escuro #0D0D0D, vermelho #E4002B, fonte
+              Sansation</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
+                class="tag tag-feat">UI/UX</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-high">Alta</span>
+            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
+          </div>
+        </div>
+
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-02</div>
+            <div class="backlog-item-title">Classificação manual pelo SDR</div>
+            <div class="backlog-item-desc">Botões 🔥🌡❄️ por linha, persistência no banco via PATCH
+              /api/leads/:id/classificacao</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
+                class="tag tag-back">back</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-high">Alta</span>
+            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
+          </div>
+        </div>
+
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-03</div>
+            <div class="backlog-item-title">Buscador completo na tabela</div>
+            <div class="backlog-item-desc">Busca por nome, cidade, CNPJ, telefone e e-mail em tempo real</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-high">Alta</span>
+            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
+          </div>
+        </div>
+
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-04</div>
+            <div class="backlog-item-title">Ordenação de colunas + filtros por classe</div>
+            <div class="backlog-item-desc">Setas ↑↓ em Empresa, Cidade, Tempo, Google. Cards Todos/Quente/Morno/Frio/Sem
+              classificação</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-medium">Média</span>
+            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EM ANDAMENTO -->
+      <div class="backlog-section">
+        <div class="backlog-section-title">🔴 Em andamento — front (hoje/amanhã)</div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-05</div>
+            <div class="backlog-item-title">Etiquetas customizadas pelo usuário</div>
+            <div class="backlog-item-desc">Criar novas etiquetas além de Quente/Morno/Frio. Salvar no banco, disponível
+              na seleção por linha e nos filtros</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
+                class="tag tag-back">back</span><span class="tag tag-feat">novo</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-high">Alta</span>
+            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
+          </div>
+        </div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-06</div>
+            <div class="backlog-item-title">Ordenação em Regime e Faturamento</div>
+            <div class="backlog-item-desc">Adicionar setas de ordenação crescente/decrescente nas colunas Regime e
+              Faturamento Estimado</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-medium">Média</span>
+            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
+          </div>
+        </div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-07</div>
+            <div class="backlog-item-title">Capital social no front</div>
+            <div class="backlog-item-desc">Exibir capital social na tabela de leads e no detalhe da empresa</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-medium">Média</span>
+            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
+          </div>
+        </div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-08</div>
+            <div class="backlog-item-title">Filtro CNAE primário vs todos</div>
+            <div class="backlog-item-desc">Toggle na busca: capturar apenas empresas onde o CNAE buscado é o primário,
+              ou incluir CNAEs secundários</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
+                class="tag tag-back">back</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-medium">Média</span>
+            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATÉ TERÇA -->
+      <div class="backlog-section">
+        <div class="backlog-section-title">🟡 Até terça — back-end</div>
+
+        <div class="backlog-item" style="border-color:#FCD34D">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S3-09</div>
+            <div class="backlog-item-title">Qtde de funcionários via CAGED</div>
+            <div class="backlog-item-desc">Download e processamento dos arquivos CAGED/RAIS do dados.gov.br. Cruzamento
+              por CNPJ e preenchimento do campo qtdeFuncionarios</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
+                class="tag tag-data">dados</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-medium">Média</span>
+            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ até terça</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ KANBAN ═══════════════ -->
+    <div id="tab-kanban" class="tab-panel">
+      <div class="kanban">
+
+        <!-- BACKLOG -->
+        <div class="kanban-col">
+          <div class="kanban-col-header backlog">
+            <span>Backlog</span>
+            <span class="count-badge">6</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="card">
+              <div class="card-id">BL-01</div>
+              <div class="card-title">Instagram via CNPJA API</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-data">API paga</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">BL-02</div>
+              <div class="card-title">JusBrasil / Escavador — processos judiciais</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-data">API paga</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">BL-03</div>
+              <div class="card-title">Filtrar telefones válidos/inválidos</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-front">front</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">BL-04</div>
+              <div class="card-title">Tratamento CNPJs sem telefone</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">BL-05</div>
+              <div class="card-title">Web Crawling inteligente por empresa</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-feat">IA</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">BL-06</div>
+              <div class="card-title">Integração CRM (HubSpot/Kommo)</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-feat">integ.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- A FAZER -->
+        <div class="kanban-col">
+          <div class="kanban-col-header todo">
+            <span>A fazer</span>
+            <span class="count-badge">5</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="card">
+              <div class="card-id">S3-05</div>
+              <span class="card-priority p-high">alta</span>
+              <div class="card-title">Etiquetas customizadas pelo usuário</div>
+              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-06</div>
+              <span class="card-priority p-medium">média</span>
+              <div class="card-title">Ordenação em Regime e Faturamento</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-07</div>
+              <span class="card-priority p-medium">média</span>
+              <div class="card-title">Capital social no front</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-08</div>
+              <span class="card-priority p-medium">média</span>
+              <div class="card-title">Filtro CNAE primário vs todos</div>
+              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-09</div>
+              <span class="card-priority p-medium">média</span>
+              <div class="card-title">Qtde funcionários via CAGED</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-data">dados</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EM ANDAMENTO -->
+        <div class="kanban-col">
+          <div class="kanban-col-header doing">
+            <span>Em andamento</span>
+            <span class="count-badge">0</span>
+          </div>
+          <div class="kanban-col-body">
+            <div style="text-align:center;padding:40px 16px;color:#2A2A2A;font-size:12px">Mova os cards ao iniciar</div>
+          </div>
+        </div>
+
+        <!-- CONCLUÍDO -->
+        <div class="kanban-col">
+          <div class="kanban-col-header done">
+            <span>Concluído</span>
+            <span class="count-badge">4</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="card">
+              <div class="card-id">S3-01</div>
+              <div class="card-title">Identidade visual Impulse</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-02</div>
+              <div class="card-title">Classificação manual SDR</div>
+              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-03</div>
+              <div class="card-title">Buscador completo</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-04</div>
+              <div class="card-title">Ordenação + filtros por classe</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════ BACKLOG ═══════════════ -->
+    <div id="tab-backlog" class="tab-panel">
+      <p class="section-sub">Tudo que foi identificado e ainda não entrou em sprint. Ordenado por prioridade estimada.
+      </p>
+
+      <div class="backlog-section">
+        <div class="backlog-section-title">🔴 Alta prioridade — próximas sprints</div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-03</div>
+            <div class="backlog-item-title">Filtrar telefones válidos/inválidos</div>
+            <div class="backlog-item-desc">Validar formato de telefone e dar opção ao usuário de filtrar só leads com
+              contato válido</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
+                class="tag tag-back">back</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-high">alta</span></div>
+        </div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-04</div>
+            <div class="backlog-item-title">Tratamento CNPJs sem telefone</div>
+            <div class="backlog-item-desc">Sinalizar leads sem telefone, opção de ocultar ou destacar no front</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-high">alta</span></div>
+        </div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-07</div>
+            <div class="backlog-item-title">Features inspiradas no Gleads</div>
+            <div class="backlog-item-desc">Análise comparativa com o Gleads — adicionar funcionalidades equivalentes ou
+              superiores</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
+                class="tag tag-back">back</span><span class="tag tag-feat">produto</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-high">alta</span></div>
+        </div>
+      </div>
+
+      <div class="backlog-section">
+        <div class="backlog-section-title">🟡 Média prioridade</div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-01</div>
+            <div class="backlog-item-title">Instagram via CNPJA API</div>
+            <div class="backlog-item-desc">Seguidores, frequência de posts, engajamento. ~$0.01/empresa</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
+                class="tag tag-data">API paga</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-medium">média</span></div>
+        </div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-05</div>
+            <div class="backlog-item-title">Web Crawling inteligente por empresa</div>
+            <div class="backlog-item-desc">Bot busca a empresa no Google, coleta site, notícias, Reclame Aqui. Claude
+              API processa e gera perfil de inteligência</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
+                class="tag tag-feat">IA</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-medium">média</span></div>
+        </div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-08</div>
+            <div class="backlog-item-title">WhatsApp via Evolution API</div>
+            <div class="backlog-item-desc">Disparar mensagem de prospecção direto do sistema para o WhatsApp do lead
+            </div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
+                class="tag tag-feat">integração</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-medium">média</span></div>
+        </div>
+      </div>
+
+      <div class="backlog-section">
+        <div class="backlog-section-title">🟢 Baixa prioridade — futuro</div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-02</div>
+            <div class="backlog-item-title">JusBrasil / Escavador — processos judiciais</div>
+            <div class="backlog-item-desc">API Escavador a partir de $49/mês. JusBrasil scraping retorna 403</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-low">baixa</span></div>
+        </div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-06</div>
+            <div class="backlog-item-title">Integração CRM (HubSpot / Kommo / Pipedrive)</div>
+            <div class="backlog-item-desc">Exportar leads qualificados direto para o CRM via API</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
+                class="tag tag-feat">integração</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-low">baixa</span></div>
+        </div>
+        <div class="backlog-item">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">BL-09</div>
+            <div class="backlog-item-title">Multi-tenant SaaS</div>
+            <div class="backlog-item-desc">Cada cliente com seus próprios CNAEs, critérios e segmentos. Painel de
+              administração</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-feat">produto</span></div>
+          </div>
+          <div class="backlog-item-right"><span class="p-low">baixa</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ ROADMAP ═══════════════ -->
+    <div id="tab-timeline" class="tab-panel">
+      <p class="section-sub">Histórico de sprints realizadas e planejamento das próximas. Reuniões de entrega toda
+        quarta-feira.</p>
+
+      <div class="timeline">
+        <div class="timeline-item done">
+          <div class="timeline-date">✓ 27 Mai – 3 Jun 2026</div>
+          <div class="timeline-title">Sprint 1 — MVP completo</div>
+          <div class="timeline-desc">Pipeline ponta a ponta funcionando</div>
+          <div class="timeline-delivs">
+            <span class="tag tag-back">Busca CNAE (65M registros)</span>
+            <span class="tag tag-back">Enriquecimento RFB</span>
+            <span class="tag tag-data">Google Meu Negócio</span>
+            <span class="tag tag-feat">Scoring Claude API</span>
+            <span class="tag tag-front">Front-end Next.js</span>
+            <span class="tag tag-back">Exportação Excel</span>
+          </div>
+        </div>
+
+        <div class="timeline-item done">
+          <div class="timeline-date">✓ 3 Jun 2026 — 10 Jun 2026</div>
+          <div class="timeline-title">Sprint 2 — Correções e dados</div>
+          <div class="timeline-desc">Qualidade dos dados e melhorias de back-end</div>
+          <div class="timeline-delivs">
+            <span class="tag tag-back">Regime tributário corrigido</span>
+            <span class="tag tag-back">Data de abertura</span>
+            <span class="tag tag-back">Faturamento estimado</span>
+            <span class="tag tag-front">27 estados nos filtros</span>
+            <span class="tag tag-back">Cruzamento matriz+filial</span>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="border-left-color:#E4002B">
+          <div class="timeline-date">⚡ 10 Jun 2026 — 24 Jun 2026 (agora)</div>
+          <div class="timeline-title">Sprint 3 — Front-end + Funcionários</div>
+          <div class="timeline-desc">Entrega: quarta 18/06/2026</div>
+          <div class="timeline-delivs">
+            <span class="tag tag-front">✓ Identidade Impulse</span>
+            <span class="tag tag-front">✓ Classificação manual SDR</span>
+            <span class="tag tag-front">✓ Buscador completo</span>
+            <span class="tag tag-front">✓ Ordenação colunas</span>
+            <span class="tag tag-front">Etiquetas customizadas</span>
+            <span class="tag tag-front">Capital social</span>
+            <span class="tag tag-front">Filtro CNAE primário</span>
+            <span class="tag tag-data">CAGED funcionários</span>
+          </div>
+        </div>
+
+        <div class="timeline-item future">
+          <div class="timeline-date">Jun–Jul 2026 — semana 3</div>
+          <div class="timeline-title">Sprint 4 — Qualidade de dados + Gleads</div>
+          <div class="timeline-desc">Melhorar dados de contato e features inspiradas no Gleads</div>
+          <div class="timeline-delivs">
+            <span class="tag tag-back">Validação de telefones</span>
+            <span class="tag tag-front">Tratamento CNPJs sem contato</span>
+            <span class="tag tag-feat">Features Gleads</span>
+          </div>
+        </div>
+
+        <div class="timeline-item future">
+          <div class="timeline-date">Jul 2026</div>
+          <div class="timeline-title">Sprint 5 — Presença digital avançada</div>
+          <div class="timeline-desc">Instagram e web crawling</div>
+          <div class="timeline-delivs">
+            <span class="tag tag-data">Instagram CNPJA API</span>
+            <span class="tag tag-feat">Web Crawling + Claude</span>
+          </div>
+        </div>
+
+        <div class="timeline-item future">
+          <div class="timeline-date">Jul–Ago 2026</div>
+          <div class="timeline-title">Sprints 6–7 — Produto e escala</div>
+          <div class="timeline-desc">WhatsApp, CRM, multi-tenant</div>
+          <div class="timeline-delivs">
+            <span class="tag tag-feat">WhatsApp Evolution API</span>
+            <span class="tag tag-feat">Integração CRM</span>
+            <span class="tag tag-feat">Multi-tenant SaaS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════ METODOLOGIA ═══════════════ -->
+    <div id="tab-method" class="tab-panel">
+      <p class="section-sub">Guia rápido de como funciona o processo ágil neste projeto — adaptado à realidade de
+        reuniões semanais às quartas.</p>
+
+      <div class="method-grid">
+        <div class="method-card">
+          <div class="method-icon">🏃</div>
+          <div class="method-title">O que é uma Sprint?</div>
+          <div class="method-text">
+            Um ciclo de trabalho com <span class="method-highlight">duração fixa</span> (aqui: 1 - 2 semanas). No início
+            define-se o que será feito, no final entrega-se funcionando. Nada entra na sprint sem estar no backlog e
+            priorizado.
+          </div>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">📋</div>
+          <div class="method-title">Reunião de entrega (quarta)</div>
+          <div class="method-text">
+            É a <span class="method-highlight">Sprint Review</span>: você demonstra o que foi feito, é avaliado, recebe
+            feedback e define as prioridades da próxima sprint. Dura ~30 min.
+          </div>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">📦</div>
+          <div class="method-title">O que é o Backlog?</div>
+          <div class="method-text">
+            Lista <span class="method-highlight">priorizada</span> de tudo que ainda será feito. Itens entram no backlog
+            quando identificados, e só viram sprint quando priorizados. Nunca some — só muda de prioridade.
+          </div>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">🎯</div>
+          <div class="method-title">Definição de "pronto"</div>
+          <div class="method-text">
+            Um item só é <span class="method-highlight">concluído</span> quando: está funcionando no front ou back, foi
+            testado, não quebrou nada existente e foi commitado no GitHub.
+          </div>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">🚦</div>
+          <div class="method-title">Prioridades</div>
+          <div class="method-text">
+            <span class="method-highlight">Alta</span>: impacta diretamente o uso pelo SDR ou foi pedido pelo
+            cliente.<br>
+            <span class="method-highlight">Média</span>: melhora a qualidade mas não bloqueia ninguém.<br>
+            <span class="method-highlight">Baixa</span>: futuro, quando houver tempo.
+          </div>
+        </div>
+        <div class="method-card">
+          <div class="method-icon">📝</div>
+          <div class="method-title">Como registrar</div>
+          <div class="method-text">
+            Todo item tem um <span class="method-highlight">ID único</span> (S3-05, BL-03), título claro, descrição do
+            que precisa ser feito e tags de área (front/back/dados). Facilita rastrear e comunicar.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Fluxo da semana — como funciona na prática</div>
+      <table class="def-table">
+        <thead>
+          <tr>
+            <th>Dia</th>
+            <th>O que acontece</th>
+            <th>Quem</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Quarta (reunião)</td>
+            <td>Sprint Review + Sprint Planning. Rafael avalia o que foi feito e define prioridades da próxima sprint
+            </td>
+            <td>Pedro + Rafael</td>
+            <td>Lista de itens confirmada para a semana</td>
+          </tr>
+          <tr>
+            <td>Quarta–Quinta</td>
+            <td>Desenvolvimento dos itens de front-end priorizados</td>
+            <td>Pedro</td>
+            <td>Commits no GitHub, front funcionando</td>
+          </tr>
+          <tr>
+            <td>Sexta–Segunda</td>
+            <td>Desenvolvimento de back-end, dados, integrações</td>
+            <td>Pedro</td>
+            <td>Commits no GitHub, back funcionando</td>
+          </tr>
+          <tr>
+            <td>Terça</td>
+            <td>Testes, ajustes finais, preparação para apresentação</td>
+            <td>Pedro</td>
+            <td>Sprint pronta para demonstração</td>
+          </tr>
+          <tr>
+            <td>Quarta (próxima)</td>
+            <td>Demonstração do que foi feito. Início do próximo ciclo</td>
+            <td>Pedro + Rafael</td>
+            <td>Feedback + nova sprint definida</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /content -->
+
+  <script>
+    function showTab(id) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+
+</html>

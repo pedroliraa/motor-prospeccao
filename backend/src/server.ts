@@ -20,7 +20,8 @@ app.get('/health', (_req, res) => {
 });
 
 // inicia uma busca
-app.post('/api/execucoes', async (_req, res) => {
+app.post('/api/execucoes', async (req, res) => {
+  const somentePrimario = req.body?.somentePrimario ?? false;
   console.log('>>> Endpoint /api/execucoes chamado');
   try {
     const execucao = await prisma.execucao.create({
@@ -33,7 +34,7 @@ app.post('/api/execucoes', async (_req, res) => {
 
     res.json({ id: execucao.id, status: 'processando' });
     console.log('>>> Chamando executarBusca em background...');
-    executarBusca()
+    executarBusca(somentePrimario)
       .then(async empresas => {
         console.log(`>>> executarBusca retornou ${empresas.length} empresas`);
         let salvas = 0;
@@ -273,6 +274,52 @@ app.patch('/api/leads/:id/classificacao', async (req, res) => {
     data: { classificacao },
   });
   res.json(empresa);
+});
+
+app.post('/api/test_func', async (_req, res) => {
+  res.json({ status: 'processando' });
+
+  const empresas = await prisma.empresa.findMany({
+    select: { id: true, porte: true }
+  });
+
+  for (const emp of empresas) {
+    const faixa =
+      emp.porte === 'Micro Empresa'             ? '1 a 19' :
+      emp.porte === 'Empresa de Pequeno Porte'  ? '20 a 99' :
+      emp.porte === 'Demais'                    ? '100+' :
+      emp.porte === 'MEI'                       ? '1' : 'Não estimado';
+
+    await prisma.empresa.update({
+      where: { id: emp.id },
+      data: { qtdeFuncionarios: faixa }
+    });
+  }
+  console.log(`Funcionários estimados para ${empresas.length} empresas`);
+});
+
+// listar etiquetas
+app.get('/api/etiquetas', async (_req, res) => {
+  const etiquetas = await prisma.etiqueta.findMany({ orderBy: { nome: 'asc' } });
+  res.json(etiquetas);
+});
+
+// criar etiqueta
+app.post('/api/etiquetas', async (req, res) => {
+  const { nome, cor } = req.body;
+  if (!nome) return res.status(400).json({ error: 'Nome obrigatório' });
+  try {
+    const etiqueta = await prisma.etiqueta.create({ data: { nome, cor: cor ?? '#6B7280' } });
+    res.json(etiqueta);
+  } catch {
+    res.status(400).json({ error: 'Etiqueta já existe' });
+  }
+});
+
+// deletar etiqueta
+app.delete('/api/etiquetas/:id', async (req, res) => {
+  await prisma.etiqueta.delete({ where: { id: Number(req.params.id) } });
+  res.json({ ok: true });
 });
 
 const PORT = process.env.PORT ?? 3001;

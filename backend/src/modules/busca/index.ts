@@ -50,7 +50,7 @@ async function carregarCnaes(): Promise<Map<string, string>> {
   return mapa;
 }
 
-export async function executarBusca(): Promise<EmpresaRFB[]> {
+export async function executarBusca(somentePrimario = false): Promise<EmpresaRFB[]> {
   const { cnaes, filtros } = config;
   const municipiosAlvo = (filtros.municipios as string[]).map((m: string) => m.toUpperCase());
   const estados = filtros.estados as string[];
@@ -88,7 +88,15 @@ export async function executarBusca(): Promise<EmpresaRFB[]> {
       const municipioCodigo = col[20] ?? '';
       const situacao = col[5] ?? '';
 
-      if (!cnaeSet.has(cnae)) return;
+      if (somentePrimario) {
+        // só aceita se o CNAE principal (col[11]) estiver na lista
+        if (!cnaeSet.has(cnae)) return;
+      } else {
+        // aceita se qualquer CNAE secundário (col[12]) também estiver na lista
+        const cnaesSecundarios = (col[12] ?? '').split(',').map(c => c.replace(/[-\/]/g, '').trim());
+        const temMatch = cnaeSet.has(cnae) || cnaesSecundarios.some(c => cnaeSet.has(c));
+        if (!temMatch) return;
+      }
       if (!estados.includes(uf)) return;
       if (codigosMunicipios.size > 0 && !codigosMunicipios.has(municipioCodigo)) return;
       if (situacao !== '02') return;

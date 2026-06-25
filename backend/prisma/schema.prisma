@@ -62,3 +62,9 @@ model Execucao {
   totalEmpresas Int      @default(0)
   createdAt     DateTime @default(now())
 }
+
+model Etiqueta {
+  id    Int    @id @default(autoincrement())
+  nome  String @unique
+  cor   String @default("#6B7280")
+}

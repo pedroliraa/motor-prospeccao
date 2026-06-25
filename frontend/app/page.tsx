@@ -6,13 +6,16 @@ import CnaeTags from '../components/CnaeTags';
 import FiltrosForm from '../components/FiltrosForm';
 import ProgressoPipeline from '../components/ProgressoPipeline';
 import TabelaLeads from '../components/TabelaLeads';
-import { getLeads, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api';
+import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api';
 import { Empresa } from '../types/index';
+import GerenciadorEtiquetas from '../components/GerenciadorEtiquetas';
+import { Etiqueta } from '../types/index';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 const FILTROS_CLASSE = ['Todos', 'Quente', 'Morno', 'Frio', 'Sem classificação'] as const;
 type FiltroClasse = typeof FILTROS_CLASSE[number];
+
 
 export default function Home() {
   const [segmento, setSegmento] = useState('Material de Construção');
@@ -25,12 +28,15 @@ export default function Home() {
   const [rodando, setRodando] = useState(false);
   const [totalBanco, setTotalBanco] = useState(0);
   const [filtroClasse, setFiltroClasse] = useState<FiltroClasse>('Todos');
+  const [somentePrimario, setSomentePrimario] = useState(false);
+  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
 
   useEffect(() => {
     getLeads().then(data => {
       const ordenados = [...data].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
       setEmpresas(ordenados);
       setTotalBanco(data.length);
+      getEtiquetas().then(setEtiquetas);
     });
   }, []);
 
@@ -41,6 +47,11 @@ export default function Home() {
     setTotalBanco(data.length);
   }
 
+  async function recarregarEtiquetas() {
+    const data = await getEtiquetas();
+    setEtiquetas(data);
+  }
+
   function onClassificacaoChange(id: number, classificacao: string | null) {
     setEmpresas(prev => prev.map(e => e.id === id ? { ...e, classificacao } : e));
   }
@@ -48,7 +59,7 @@ export default function Home() {
   async function executar() {
     setRodando(true);
     setEtapaAtual(0);
-    const exec = await iniciarBusca();
+    const exec = await iniciarBusca(somentePrimario);
     setExecucaoId(exec.id);
 
     await new Promise<void>(resolve => {
@@ -122,7 +133,14 @@ export default function Home() {
               <label className="text-xs text-gray-500 mb-1 block">CNAEs</label>
               <CnaeTags segmento={segmento} selecionados={cnaes} onChange={setCnaes} />
             </div>
-            <FiltrosForm estados={estados} porte={porte} onChangeEstados={setEstados} onChangePorte={setPorte} />
+            <FiltrosForm
+              estados={estados}
+              porte={porte}
+              somentePrimario={somentePrimario}
+              onChangeEstados={setEstados}
+              onChangePorte={setPorte}
+              onChangeSomentePrimario={setSomentePrimario}
+            />
           </div>
 
           <button
@@ -133,6 +151,8 @@ export default function Home() {
           >
             {rodando ? 'Processando...' : 'Executar busca'}
           </button>
+
+          <GerenciadorEtiquetas etiquetas={etiquetas} onUpdate={recarregarEtiquetas} />
         </div>
 
         {/* Conteúdo principal */}
@@ -197,7 +217,11 @@ export default function Home() {
               </button>
             </div>
             <div className="p-4">
-              <TabelaLeads empresas={empresasFiltradas} onClassificacaoChange={onClassificacaoChange} />
+              <TabelaLeads
+                empresas={empresasFiltradas}
+                etiquetas={etiquetas}
+                onClassificacaoChange={onClassificacaoChange}
+              />
             </div>
           </div>
         </div>

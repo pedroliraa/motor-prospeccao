@@ -13,8 +13,8 @@ import { Etiqueta } from '../types/index';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-const FILTROS_CLASSE = ['Todos', 'Quente', 'Morno', 'Frio', 'Sem classificação'] as const;
-type FiltroClasse = typeof FILTROS_CLASSE[number];
+const FILTROS_FIXOS = ['Todos', 'Quente', 'Morno', 'Frio', 'Sem classificação'] as const;
+type FiltroClasse = string;
 
 
 export default function Home() {
@@ -94,6 +94,11 @@ export default function Home() {
       filtroClasse === 'Sem classificação' ? empresas.filter(e => !e.classificacao) :
         empresas.filter(e => e.classificacao === filtroClasse);
 
+  const todosOsFiltros = [
+    ...FILTROS_FIXOS,
+    ...etiquetas.filter(e => !['Quente', 'Morno', 'Frio'].includes(e.nome)).map(e => e.nome)
+  ];
+
   return (
     <div
       className="min-h-screen w-full"
@@ -120,7 +125,12 @@ export default function Home() {
       {/* ── CORPO ── */}
       <div className="flex gap-6 p-6 pt-20 max-w-screen-xl mx-auto">
         {/* Sidebar */}
-        <div className="w-72 flex-shrink-0 space-y-4">
+        <div className="w-72 flex-shrink-0 space-y-4" style={{
+          height: 'calc(100vh - 88px)',
+          overflowY: 'auto',
+          position: 'sticky',
+          top: '80px',
+        }}>
           <div className="rounded-xl p-4 space-y-4" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#E4002B' }}>
               Configuração
@@ -156,9 +166,13 @@ export default function Home() {
         </div>
 
         {/* Conteúdo principal */}
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-4" style={{ minWidth: 0 }}>
           {etapaAtual >= 0 && (
-            <div className="rounded-xl p-4" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
+            <div className="rounded-xl" style={{
+              background: '#1A1A1A',
+              border: '1px solid #2A2A2A',
+              overflow: 'hidden'
+            }}>
               <ProgressoPipeline etapaAtual={etapaAtual} total={totalBanco} encontradas={empresas.length} />
             </div>
           )}
@@ -180,13 +194,14 @@ export default function Home() {
           <div className="rounded-xl" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
             <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{ borderBottom: '1px solid #2A2A2A' }}>
               <div className="flex gap-2 flex-wrap">
-                {FILTROS_CLASSE.map(f => {
+                {todosOsFiltros.map(f => {
                   const ativo = filtroClasse === f;
                   const bgAtivo =
                     f === 'Quente' ? '#E4002B' :
                       f === 'Morno' ? '#CA8A04' :
                         f === 'Frio' ? '#2563EB' :
-                          f === 'Sem classificação' ? '#374151' : '#F9FAFB';
+                          f === 'Sem classificação' ? '#374151' :
+                            etiquetas.find(e => e.nome === f)?.cor ?? '#6B7280';
                   const txtAtivo = f === 'Todos' ? '#000000' : '#FFFFFF';
                   const count =
                     f === 'Todos' ? null :

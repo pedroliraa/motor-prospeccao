@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Empresa, Etiqueta} from '../types/index';
+import { Empresa, Etiqueta } from '../types/index';
 import { atualizarClassificacao } from '../lib/api';
 
 interface Props {
@@ -166,9 +166,15 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
         {filtradas.length} de {empresas.length} leads
       </p>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
+      <div style={{
+        overflowX: 'auto',
+        overflowY: 'auto',
+        maxHeight: 'calc(100vh - 360px)',
+        borderRadius: '8px',
+        width: '100%',
+      }}>
+        <table className="w-full text-sm" style={{ minWidth: '1200px' }}>
+          <thead style={{ position: 'sticky', top: 0, background: '#1A1A1A', zIndex: 10 }}>
             <tr style={{ borderBottom: '1px solid #2A2A2A' }}>
               <th onClick={() => toggleSort('nomeFantasia')} className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest cursor-pointer select-none hover:text-[#E4002B]" style={{ color: '#6B7280' }}>
                 Empresa <SortIcon k="nomeFantasia" />

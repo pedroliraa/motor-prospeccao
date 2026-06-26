@@ -609,7 +609,7 @@
     </div>
     <div style="display:flex;align-items:center;gap:12px">
       <span class="header-meta">Projeto iniciado: Maio 2026</span>
-      <span class="sprint-badge">Sprint 3 ativa</span>
+      <span class="sprint-badge">Sprint 4 ativa</span>
     </div>
   </div>
 
@@ -628,17 +628,17 @@
 
       <div class="sprint-header">
         <div>
-          <div class="sprint-title">Sprint 3 — Front-end + Funcionários</div>
-          <div class="sprint-dates">10 jun 2026 → 17 jun 2026 · Reunião de entrega: quarta 17/06</div>
+          <div class="sprint-title">Sprint 4 — Login · Telefone · WhatsApp · Ambiente Real</div>
+          <div class="sprint-dates">26 jun 2026 → 3 jul 2026 · Reunião de entrega: quarta 01/07 e sexta 03/07</div>
         </div>
         <div class="sprint-progress">
           <div>
             <div style="font-size:11px;color:#6B7280;margin-bottom:4px;text-align:right">Progresso</div>
             <div style="display:flex;align-items:center;gap:8px">
               <div class="progress-bar">
-                <div class="progress-fill" style="width:45%"></div>
+                <div class="progress-fill" style="width:0%"></div>
               </div>
-              <span class="progress-text">45%</span>
+              <span class="progress-text">0%</span>
             </div>
           </div>
         </div>
@@ -647,18 +647,18 @@
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-label">Total de itens</div>
-          <div class="stat-value" style="color:#F9FAFB">9</div>
+          <div class="stat-value" style="color:#F9FAFB">5</div>
           <div class="stat-sub">nesta sprint</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Concluídos</div>
-          <div class="stat-value" style="color:#4ADE80">4</div>
-          <div class="stat-sub">identidade visual, classificação manual, buscador, ordenação</div>
+          <div class="stat-value" style="color:#4ADE80">0</div>
+          <div class="stat-sub">sprint recém iniciada</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Em andamento</div>
-          <div class="stat-value" style="color:#E4002B">5</div>
-          <div class="stat-sub">front + CAGED</div>
+          <div class="stat-value" style="color:#E4002B">2</div>
+          <div class="stat-sub">—</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Bloqueados</div>
@@ -667,149 +667,98 @@
         </div>
       </div>
 
-      <!-- ITENS DA SPRINT -->
-      <div class="section-title">Itens da Sprint 3</div>
+      <div class="section-title">Itens da Sprint 4</div>
 
-      <!-- CONCLUÍDOS -->
+      <!-- SPRINT 3 ENCERRADA -->
       <div class="backlog-section">
-        <div class="backlog-section-title">✅ Concluídos</div>
-
-        <div class="backlog-item">
+        <div class="backlog-section-title" style="color:#4ADE80">✅ Sprint 3 encerrada — todos os itens entregues</div>
+        <div class="backlog-item" style="opacity:0.6">
           <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-01</div>
-            <div class="backlog-item-title">Identidade visual Impulse</div>
-            <div class="backlog-item-desc">Header branco com logo, fundo escuro #0D0D0D, vermelho #E4002B, fonte
-              Sansation</div>
+            <div class="backlog-item-desc">Identidade visual Impulse · Classificação manual SDR · Buscador completo ·
+              Ordenação de colunas · Etiquetas customizadas · Filtro Regime/Faturamento · Capital social · Filtro CNAE
+              primário · Funcionários estimados por porte · Layout fixo com scroll interno</div>
+          </div>
+          <div class="backlog-item-right">
+            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ 10 itens entregues</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- A FAZER -->
+      <div class="backlog-section">
+        <div class="backlog-section-title">🔴 A fazer — Sprint 4</div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S4-01</div>
+            <div class="backlog-item-title">Login funcional</div>
+            <div class="backlog-item-desc">Página de login, autenticação JWT, painel admin para criar usuários,
+              histórico das últimas 20 buscas por usuário</div>
             <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
-                class="tag tag-feat">UI/UX</span></div>
+                class="tag tag-back">back</span><span class="tag tag-feat">auth</span></div>
           </div>
           <div class="backlog-item-right">
             <span class="p-high">Alta</span>
-            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
+            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ a fazer</span>
           </div>
         </div>
 
-        <div class="backlog-item">
+        <div class="backlog-item" style="border-color:#E4002B">
           <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-02</div>
-            <div class="backlog-item-title">Classificação manual pelo SDR</div>
-            <div class="backlog-item-desc">Botões 🔥🌡❄️ por linha, persistência no banco via PATCH
-              /api/leads/:id/classificacao</div>
+            <div class="backlog-item-id">S4-02</div>
+            <div class="backlog-item-title">Filtro de CNPJs com telefone</div>
+            <div class="backlog-item-desc">Opção de exibir apenas leads com telefone preenchido. Filtro no front e na
+              exportação Excel</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-high">Alta</span>
+            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ a fazer</span>
+          </div>
+        </div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S4-03</div>
+            <div class="backlog-item-title">Validação de WhatsApp</div>
+            <div class="backlog-item-desc">Verificar se número de telefone tem WhatsApp ativo. Integração via Evolution
+              API ou similar — marcar lead como "tem WhatsApp" ou "sem WhatsApp"</div>
+            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
+                class="tag tag-feat">integração</span></div>
+          </div>
+          <div class="backlog-item-right">
+            <span class="p-high">Alta</span>
+            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ até quarta</span>
+          </div>
+        </div>
+
+        <div class="backlog-item" style="border-color:#E4002B">
+          <div class="backlog-item-left">
+            <div class="backlog-item-id">S4-04</div>
+            <div class="backlog-item-title">Segmentos e CNAEs dinâmicos</div>
+            <div class="backlog-item-desc">Liberar todos os CNAEs da Receita Federal para busca — não apenas os
+              pré-definidos. Usuário pode buscar qualquer segmento</div>
             <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
                 class="tag tag-back">back</span></div>
           </div>
           <div class="backlog-item-right">
             <span class="p-high">Alta</span>
-            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
+            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ até sexta</span>
           </div>
         </div>
-
-        <div class="backlog-item">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-03</div>
-            <div class="backlog-item-title">Buscador completo na tabela</div>
-            <div class="backlog-item-desc">Busca por nome, cidade, CNPJ, telefone e e-mail em tempo real</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
-          </div>
-          <div class="backlog-item-right">
-            <span class="p-high">Alta</span>
-            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
-          </div>
-        </div>
-
-        <div class="backlog-item">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-04</div>
-            <div class="backlog-item-title">Ordenação de colunas + filtros por classe</div>
-            <div class="backlog-item-desc">Setas ↑↓ em Empresa, Cidade, Tempo, Google. Cards Todos/Quente/Morno/Frio/Sem
-              classificação</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
-          </div>
-          <div class="backlog-item-right">
-            <span class="p-medium">Média</span>
-            <span style="font-size:11px;color:#4ADE80;font-weight:700">✓ entregue</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- EM ANDAMENTO -->
-      <div class="backlog-section">
-        <div class="backlog-section-title">🔴 Em andamento — front (hoje/amanhã)</div>
-
-        <div class="backlog-item" style="border-color:#E4002B">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-05</div>
-            <div class="backlog-item-title">Etiquetas customizadas pelo usuário</div>
-            <div class="backlog-item-desc">Criar novas etiquetas além de Quente/Morno/Frio. Salvar no banco, disponível
-              na seleção por linha e nos filtros</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
-                class="tag tag-back">back</span><span class="tag tag-feat">novo</span></div>
-          </div>
-          <div class="backlog-item-right">
-            <span class="p-high">Alta</span>
-            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
-          </div>
-        </div>
-
-        <div class="backlog-item" style="border-color:#E4002B">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-06</div>
-            <div class="backlog-item-title">Ordenação em Regime e Faturamento</div>
-            <div class="backlog-item-desc">Adicionar setas de ordenação crescente/decrescente nas colunas Regime e
-              Faturamento Estimado</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
-          </div>
-          <div class="backlog-item-right">
-            <span class="p-medium">Média</span>
-            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
-          </div>
-        </div>
-
-        <div class="backlog-item" style="border-color:#E4002B">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-07</div>
-            <div class="backlog-item-title">Capital social no front</div>
-            <div class="backlog-item-desc">Exibir capital social na tabela de leads e no detalhe da empresa</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
-          </div>
-          <div class="backlog-item-right">
-            <span class="p-medium">Média</span>
-            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
-          </div>
-        </div>
-
-        <div class="backlog-item" style="border-color:#E4002B">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-08</div>
-            <div class="backlog-item-title">Filtro CNAE primário vs todos</div>
-            <div class="backlog-item-desc">Toggle na busca: capturar apenas empresas onde o CNAE buscado é o primário,
-              ou incluir CNAEs secundários</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
-                class="tag tag-back">back</span></div>
-          </div>
-          <div class="backlog-item-right">
-            <span class="p-medium">Média</span>
-            <span style="font-size:11px;color:#E4002B;font-weight:700">⚡ em andamento</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- ATÉ TERÇA -->
-      <div class="backlog-section">
-        <div class="backlog-section-title">🟡 Até terça — back-end</div>
 
         <div class="backlog-item" style="border-color:#FCD34D">
           <div class="backlog-item-left">
-            <div class="backlog-item-id">S3-09</div>
-            <div class="backlog-item-title">Qtde de funcionários via CAGED</div>
-            <div class="backlog-item-desc">Download e processamento dos arquivos CAGED/RAIS do dados.gov.br. Cruzamento
-              por CNPJ e preenchimento do campo qtdeFuncionarios</div>
+            <div class="backlog-item-id">S4-05</div>
+            <div class="backlog-item-title">Atualização dados Receita Federal (julho)</div>
+            <div class="backlog-item-desc">Baixar novos arquivos da RFB (dados de julho), substituir os arquivos de
+              maio. Script de atualização mensal automatizado</div>
             <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
                 class="tag tag-data">dados</span></div>
           </div>
           <div class="backlog-item-right">
             <span class="p-medium">Média</span>
-            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ até terça</span>
+            <span style="font-size:11px;color:#FCD34D;font-weight:700">⏳ até sexta</span>
           </div>
         </div>
       </div>
@@ -820,11 +769,10 @@
     <div id="tab-kanban" class="tab-panel">
       <div class="kanban">
 
-        <!-- BACKLOG -->
         <div class="kanban-col">
           <div class="kanban-col-header backlog">
             <span>Backlog</span>
-            <span class="count-badge">6</span>
+            <span class="count-badge">5</span>
           </div>
           <div class="kanban-col-body">
             <div class="card">
@@ -835,20 +783,9 @@
             </div>
             <div class="card">
               <div class="card-id">BL-02</div>
-              <div class="card-title">JusBrasil / Escavador — processos judiciais</div>
+              <div class="card-title">JusBrasil / Escavador</div>
               <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-data">API paga</span>
               </div>
-            </div>
-            <div class="card">
-              <div class="card-id">BL-03</div>
-              <div class="card-title">Filtrar telefones válidos/inválidos</div>
-              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-front">front</span>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-id">BL-04</div>
-              <div class="card-title">Tratamento CNPJs sem telefone</div>
-              <div class="card-tags"><span class="tag tag-front">front</span></div>
             </div>
             <div class="card">
               <div class="card-id">BL-05</div>
@@ -861,67 +798,65 @@
               <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-feat">integ.</span>
               </div>
             </div>
+            <div class="card">
+              <div class="card-id">BL-09</div>
+              <div class="card-title">Multi-tenant SaaS</div>
+              <div class="card-tags"><span class="tag tag-feat">produto</span></div>
+            </div>
           </div>
         </div>
 
-        <!-- A FAZER -->
         <div class="kanban-col">
           <div class="kanban-col-header todo">
             <span>A fazer</span>
             <span class="count-badge">5</span>
           </div>
           <div class="kanban-col-body">
+            
             <div class="card">
-              <div class="card-id">S3-05</div>
-              <span class="card-priority p-high">alta</span>
-              <div class="card-title">Etiquetas customizadas pelo usuário</div>
+              <div class="card-id">S4-03</div><span class="card-priority p-high">alta</span>
+              <div class="card-title">Validação de WhatsApp</div>
+              <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-feat">integração</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">S4-04</div><span class="card-priority p-high">alta</span>
+              <div class="card-title">Segmentos e CNAEs dinâmicos</div>
               <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
               </div>
             </div>
             <div class="card">
-              <div class="card-id">S3-06</div>
-              <span class="card-priority p-medium">média</span>
-              <div class="card-title">Ordenação em Regime e Faturamento</div>
-              <div class="card-tags"><span class="tag tag-front">front</span></div>
-            </div>
-            <div class="card">
-              <div class="card-id">S3-07</div>
-              <span class="card-priority p-medium">média</span>
-              <div class="card-title">Capital social no front</div>
-              <div class="card-tags"><span class="tag tag-front">front</span></div>
-            </div>
-            <div class="card">
-              <div class="card-id">S3-08</div>
-              <span class="card-priority p-medium">média</span>
-              <div class="card-title">Filtro CNAE primário vs todos</div>
-              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-id">S3-09</div>
-              <span class="card-priority p-medium">média</span>
-              <div class="card-title">Qtde funcionários via CAGED</div>
+              <div class="card-id">S4-05</div><span class="card-priority p-medium">média</span>
+              <div class="card-title">Atualização dados RFB (julho)</div>
               <div class="card-tags"><span class="tag tag-back">back</span><span class="tag tag-data">dados</span></div>
             </div>
           </div>
         </div>
 
-        <!-- EM ANDAMENTO -->
         <div class="kanban-col">
           <div class="kanban-col-header doing">
             <span>Em andamento</span>
             <span class="count-badge">0</span>
           </div>
           <div class="kanban-col-body">
-            <div style="text-align:center;padding:40px 16px;color:#2A2A2A;font-size:12px">Mova os cards ao iniciar</div>
+            <div class="card">
+              <div class="card-id">S4-01</div><span class="card-priority p-high">alta</span>
+              <div class="card-title">Login funcional</div>
+              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span><span
+                  class="tag tag-feat">auth</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S4-02</div><span class="card-priority p-high">alta</span>
+              <div class="card-title">Filtro CNPJs com telefone</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
           </div>
         </div>
 
-        <!-- CONCLUÍDO -->
         <div class="kanban-col">
           <div class="kanban-col-header done">
             <span>Concluído</span>
-            <span class="count-badge">4</span>
+            <span class="count-badge">19</span>
           </div>
           <div class="kanban-col-body">
             <div class="card">
@@ -945,6 +880,38 @@
               <div class="card-title">Ordenação + filtros por classe</div>
               <div class="card-tags"><span class="tag tag-front">front</span></div>
             </div>
+            <div class="card">
+              <div class="card-id">S3-05</div>
+              <div class="card-title">Etiquetas customizadas</div>
+              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-06</div>
+              <div class="card-title">Filtro Regime e Faturamento</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-07</div>
+              <div class="card-title">Capital social no front</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-08</div>
+              <div class="card-title">Filtro CNAE primário vs todos</div>
+              <div class="card-tags"><span class="tag tag-front">front</span><span class="tag tag-back">back</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-09</div>
+              <div class="card-title">Funcionários estimados por porte</div>
+              <div class="card-tags"><span class="tag tag-back">back</span></div>
+            </div>
+            <div class="card">
+              <div class="card-id">S3-10</div>
+              <div class="card-title">Layout fixo com scroll interno</div>
+              <div class="card-tags"><span class="tag tag-front">front</span></div>
+            </div>
           </div>
         </div>
 
@@ -955,41 +922,6 @@
     <div id="tab-backlog" class="tab-panel">
       <p class="section-sub">Tudo que foi identificado e ainda não entrou em sprint. Ordenado por prioridade estimada.
       </p>
-
-      <div class="backlog-section">
-        <div class="backlog-section-title">🔴 Alta prioridade — próximas sprints</div>
-        <div class="backlog-item">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">BL-03</div>
-            <div class="backlog-item-title">Filtrar telefones válidos/inválidos</div>
-            <div class="backlog-item-desc">Validar formato de telefone e dar opção ao usuário de filtrar só leads com
-              contato válido</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
-                class="tag tag-back">back</span></div>
-          </div>
-          <div class="backlog-item-right"><span class="p-high">alta</span></div>
-        </div>
-        <div class="backlog-item">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">BL-04</div>
-            <div class="backlog-item-title">Tratamento CNPJs sem telefone</div>
-            <div class="backlog-item-desc">Sinalizar leads sem telefone, opção de ocultar ou destacar no front</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span></div>
-          </div>
-          <div class="backlog-item-right"><span class="p-high">alta</span></div>
-        </div>
-        <div class="backlog-item">
-          <div class="backlog-item-left">
-            <div class="backlog-item-id">BL-07</div>
-            <div class="backlog-item-title">Features inspiradas no Gleads</div>
-            <div class="backlog-item-desc">Análise comparativa com o Gleads — adicionar funcionalidades equivalentes ou
-              superiores</div>
-            <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-front">front</span><span
-                class="tag tag-back">back</span><span class="tag tag-feat">produto</span></div>
-          </div>
-          <div class="backlog-item-right"><span class="p-high">alta</span></div>
-        </div>
-      </div>
 
       <div class="backlog-section">
         <div class="backlog-section-title">🟡 Média prioridade</div>
@@ -1007,8 +939,8 @@
           <div class="backlog-item-left">
             <div class="backlog-item-id">BL-05</div>
             <div class="backlog-item-title">Web Crawling inteligente por empresa</div>
-            <div class="backlog-item-desc">Bot busca a empresa no Google, coleta site, notícias, Reclame Aqui. Claude
-              API processa e gera perfil de inteligência</div>
+            <div class="backlog-item-desc">Bot busca empresa no Google, coleta site, notícias, Reclame Aqui. Claude API
+              processa e gera perfil de inteligência</div>
             <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
                 class="tag tag-feat">IA</span></div>
           </div>
@@ -1017,9 +949,9 @@
         <div class="backlog-item">
           <div class="backlog-item-left">
             <div class="backlog-item-id">BL-08</div>
-            <div class="backlog-item-title">WhatsApp via Evolution API</div>
+            <div class="backlog-item-title">WhatsApp via Evolution API — envio de mensagens</div>
             <div class="backlog-item-desc">Disparar mensagem de prospecção direto do sistema para o WhatsApp do lead
-            </div>
+              (diferente da validação S4-03)</div>
             <div style="margin-top:6px;display:flex;gap:4px"><span class="tag tag-back">back</span><span
                 class="tag tag-feat">integração</span></div>
           </div>
@@ -1082,7 +1014,7 @@
         </div>
 
         <div class="timeline-item done">
-          <div class="timeline-date">✓ 3 Jun 2026 — 10 Jun 2026</div>
+          <div class="timeline-date">✓ 3 Jun – 10 Jun 2026</div>
           <div class="timeline-title">Sprint 2 — Correções e dados</div>
           <div class="timeline-desc">Qualidade dos dados e melhorias de back-end</div>
           <div class="timeline-delivs">
@@ -1094,30 +1026,34 @@
           </div>
         </div>
 
-        <div class="timeline-item" style="border-left-color:#E4002B">
-          <div class="timeline-date">⚡ 10 Jun 2026 — 24 Jun 2026 (agora)</div>
+        <div class="timeline-item done">
+          <div class="timeline-date">✓ 10 Jun – 26 Jun 2026</div>
           <div class="timeline-title">Sprint 3 — Front-end + Funcionários</div>
-          <div class="timeline-desc">Entrega: quarta 18/06/2026</div>
+          <div class="timeline-desc">10 itens entregues — maior sprint do projeto</div>
           <div class="timeline-delivs">
-            <span class="tag tag-front">✓ Identidade Impulse</span>
+            <span class="tag tag-front">✓ Identidade visual Impulse</span>
             <span class="tag tag-front">✓ Classificação manual SDR</span>
             <span class="tag tag-front">✓ Buscador completo</span>
             <span class="tag tag-front">✓ Ordenação colunas</span>
-            <span class="tag tag-front">Etiquetas customizadas</span>
-            <span class="tag tag-front">Capital social</span>
-            <span class="tag tag-front">Filtro CNAE primário</span>
-            <span class="tag tag-data">CAGED funcionários</span>
+            <span class="tag tag-front">✓ Etiquetas customizadas</span>
+            <span class="tag tag-front">✓ Filtro Regime/Faturamento</span>
+            <span class="tag tag-front">✓ Capital social</span>
+            <span class="tag tag-front">✓ Filtro CNAE primário</span>
+            <span class="tag tag-back">✓ Funcionários estimados</span>
+            <span class="tag tag-front">✓ Layout fixo scroll interno</span>
           </div>
         </div>
 
-        <div class="timeline-item future">
-          <div class="timeline-date">Jun–Jul 2026 — semana 3</div>
-          <div class="timeline-title">Sprint 4 — Qualidade de dados + Gleads</div>
-          <div class="timeline-desc">Melhorar dados de contato e features inspiradas no Gleads</div>
+        <div class="timeline-item" style="border-left-color:#E4002B">
+          <div class="timeline-date">⚡ 26 Jun – 3 Jul 2026 (agora)</div>
+          <div class="timeline-title">Sprint 4 — Login · Telefone · WhatsApp · Ambiente Real</div>
+          <div class="timeline-desc">Entregas: quarta 01/07/2026 e 03/07/2026</div>
           <div class="timeline-delivs">
-            <span class="tag tag-back">Validação de telefones</span>
-            <span class="tag tag-front">Tratamento CNPJs sem contato</span>
-            <span class="tag tag-feat">Features Gleads</span>
+            <span class="tag tag-feat">S4-01 Login funcional</span>
+            <span class="tag tag-front">S4-02 Filtro telefone</span>
+            <span class="tag tag-feat">S4-03 Validação WhatsApp</span>
+            <span class="tag tag-back">S4-04 CNAEs dinâmicos</span>
+            <span class="tag tag-data">S4-05 Atualização RFB julho</span>
           </div>
         </div>
 
@@ -1134,7 +1070,7 @@
         <div class="timeline-item future">
           <div class="timeline-date">Jul–Ago 2026</div>
           <div class="timeline-title">Sprints 6–7 — Produto e escala</div>
-          <div class="timeline-desc">WhatsApp, CRM, multi-tenant</div>
+          <div class="timeline-desc">WhatsApp envio, CRM, multi-tenant</div>
           <div class="timeline-delivs">
             <span class="tag tag-feat">WhatsApp Evolution API</span>
             <span class="tag tag-feat">Integração CRM</span>
@@ -1144,110 +1080,6 @@
       </div>
     </div>
 
-    <!-- ═══════════════ METODOLOGIA ═══════════════ -->
-    <div id="tab-method" class="tab-panel">
-      <p class="section-sub">Guia rápido de como funciona o processo ágil neste projeto — adaptado à realidade de
-        reuniões semanais às quartas.</p>
-
-      <div class="method-grid">
-        <div class="method-card">
-          <div class="method-icon">🏃</div>
-          <div class="method-title">O que é uma Sprint?</div>
-          <div class="method-text">
-            Um ciclo de trabalho com <span class="method-highlight">duração fixa</span> (aqui: 1 - 2 semanas). No início
-            define-se o que será feito, no final entrega-se funcionando. Nada entra na sprint sem estar no backlog e
-            priorizado.
-          </div>
-        </div>
-        <div class="method-card">
-          <div class="method-icon">📋</div>
-          <div class="method-title">Reunião de entrega (quarta)</div>
-          <div class="method-text">
-            É a <span class="method-highlight">Sprint Review</span>: você demonstra o que foi feito, é avaliado, recebe
-            feedback e define as prioridades da próxima sprint. Dura ~30 min.
-          </div>
-        </div>
-        <div class="method-card">
-          <div class="method-icon">📦</div>
-          <div class="method-title">O que é o Backlog?</div>
-          <div class="method-text">
-            Lista <span class="method-highlight">priorizada</span> de tudo que ainda será feito. Itens entram no backlog
-            quando identificados, e só viram sprint quando priorizados. Nunca some — só muda de prioridade.
-          </div>
-        </div>
-        <div class="method-card">
-          <div class="method-icon">🎯</div>
-          <div class="method-title">Definição de "pronto"</div>
-          <div class="method-text">
-            Um item só é <span class="method-highlight">concluído</span> quando: está funcionando no front ou back, foi
-            testado, não quebrou nada existente e foi commitado no GitHub.
-          </div>
-        </div>
-        <div class="method-card">
-          <div class="method-icon">🚦</div>
-          <div class="method-title">Prioridades</div>
-          <div class="method-text">
-            <span class="method-highlight">Alta</span>: impacta diretamente o uso pelo SDR ou foi pedido pelo
-            cliente.<br>
-            <span class="method-highlight">Média</span>: melhora a qualidade mas não bloqueia ninguém.<br>
-            <span class="method-highlight">Baixa</span>: futuro, quando houver tempo.
-          </div>
-        </div>
-        <div class="method-card">
-          <div class="method-icon">📝</div>
-          <div class="method-title">Como registrar</div>
-          <div class="method-text">
-            Todo item tem um <span class="method-highlight">ID único</span> (S3-05, BL-03), título claro, descrição do
-            que precisa ser feito e tags de área (front/back/dados). Facilita rastrear e comunicar.
-          </div>
-        </div>
-      </div>
-
-      <div class="section-title">Fluxo da semana — como funciona na prática</div>
-      <table class="def-table">
-        <thead>
-          <tr>
-            <th>Dia</th>
-            <th>O que acontece</th>
-            <th>Quem</th>
-            <th>Resultado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Quarta (reunião)</td>
-            <td>Sprint Review + Sprint Planning. Rafael avalia o que foi feito e define prioridades da próxima sprint
-            </td>
-            <td>Pedro + Rafael</td>
-            <td>Lista de itens confirmada para a semana</td>
-          </tr>
-          <tr>
-            <td>Quarta–Quinta</td>
-            <td>Desenvolvimento dos itens de front-end priorizados</td>
-            <td>Pedro</td>
-            <td>Commits no GitHub, front funcionando</td>
-          </tr>
-          <tr>
-            <td>Sexta–Segunda</td>
-            <td>Desenvolvimento de back-end, dados, integrações</td>
-            <td>Pedro</td>
-            <td>Commits no GitHub, back funcionando</td>
-          </tr>
-          <tr>
-            <td>Terça</td>
-            <td>Testes, ajustes finais, preparação para apresentação</td>
-            <td>Pedro</td>
-            <td>Sprint pronta para demonstração</td>
-          </tr>
-          <tr>
-            <td>Quarta (próxima)</td>
-            <td>Demonstração do que foi feito. Início do próximo ciclo</td>
-            <td>Pedro + Rafael</td>
-            <td>Feedback + nova sprint definida</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
 
   </div><!-- /content -->
 

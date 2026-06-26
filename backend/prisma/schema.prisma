@@ -68,3 +68,24 @@ model Etiqueta {
   nome  String @unique
   cor   String @default("#6B7280")
 }
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  role      String   @default("user")
+  ativo     Boolean  @default(false)
+  createdAt DateTime @default(now())
+  buscas    Busca[]
+}
+
+model Busca {
+  id         Int      @id @default(autoincrement())
+  usuarioId  Int
+  segmento   String
+  filtros    String
+  totalLeads Int      @default(0)
+  createdAt  DateTime @default(now())
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+}

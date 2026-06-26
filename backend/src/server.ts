@@ -6,6 +6,7 @@ import { executarScoring } from './modules/scoring/index.js';
 import prisma from './db/prisma.js';
 import { gerarExcel } from './modules/exportacao/index.js';
 import { executarPresencaDigital } from './modules/enriquecimento/presencaDigital.js';
+import { hashSenha, verificarSenha, gerarToken, verificarToken } from './auth.js';
 import cors from 'cors';
 
 dotenv.config({ path: '.env' });
@@ -249,14 +250,14 @@ app.post('/api/atualizar-data-abertura', async (_req, res) => {
         where: { cnpj: emp.cnpj },
         data: {
           dataAbertura: new Date(
-            emp.dataAbertura.slice(0,4) + '-' +
-            emp.dataAbertura.slice(4,6) + '-' +
-            emp.dataAbertura.slice(6,8)
+            emp.dataAbertura.slice(0, 4) + '-' +
+            emp.dataAbertura.slice(4, 6) + '-' +
+            emp.dataAbertura.slice(6, 8)
           )
         }
       });
       atualizadas++;
-    } catch {}
+    } catch { }
   }
   console.log(`Data de abertura atualizada: ${atualizadas} empresas`);
 });
@@ -285,10 +286,10 @@ app.post('/api/test_func', async (_req, res) => {
 
   for (const emp of empresas) {
     const faixa =
-      emp.porte === 'Micro Empresa'             ? '1 a 19' :
-      emp.porte === 'Empresa de Pequeno Porte'  ? '20 a 99' :
-      emp.porte === 'Demais'                    ? '100+' :
-      emp.porte === 'MEI'                       ? '1' : 'Não estimado';
+      emp.porte === 'Micro Empresa' ? '1 a 19' :
+        emp.porte === 'Empresa de Pequeno Porte' ? '20 a 99' :
+          emp.porte === 'Demais' ? '100+' :
+            emp.porte === 'MEI' ? '1' : 'Não estimado';
 
     await prisma.empresa.update({
       where: { id: emp.id },
@@ -320,6 +321,107 @@ app.post('/api/etiquetas', async (req, res) => {
 app.delete('/api/etiquetas/:id', async (req, res) => {
   await prisma.etiqueta.delete({ where: { id: Number(req.params.id) } });
   res.json({ ok: true });
+});
+
+// ── AUTH ──
+
+// middleware de autenticação
+function autenticar(req: any, res: any, next: any) {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'Não autenticado' });
+  const payload = verificarToken(token);
+  if (!payload) return res.status(401).json({ error: 'Token inválido' });
+  req.usuario = payload;
+  next();
+}
+
+function apenasAdmin(req: any, res: any, next: any) {
+  if (req.usuario?.role !== 'admin') return res.status(403).json({ error: 'Acesso negado' });
+  next();
+}
+
+function validarSenha(senha: string): string | null {
+  if (senha.length < 8) return 'Senha deve ter pelo menos 8 caracteres';
+  if (!/[A-Z]/.test(senha)) return 'Senha deve ter pelo menos uma letra maiúscula';
+  if (!/[0-9]/.test(senha)) return 'Senha deve ter pelo menos um número';
+  if (!/[!@#$%^&*()_+\-=\[\]{};:,.<>?]/.test(senha)) return 'Senha deve ter pelo menos um caractere especial';
+  return null;
+}
+
+// cadastro
+app.post('/api/auth/cadastro', async (req, res) => {
+  const { nome, email, senha } = req.body;
+  if (!nome || !email || !senha) return res.status(400).json({ error: 'Campos obrigatórios' });
+  const erroSenha = validarSenha(senha);
+  if (erroSenha) return res.status(400).json({ error: erroSenha });
+  try {
+    const hash = await hashSenha(senha);
+    const usuario = await prisma.usuario.create({
+      data: { nome, email, senha: hash, ativo: false, role: 'user' }
+    });
+    res.json({ ok: true, mensagem: 'Cadastro realizado! Aguarde aprovação do administrador.' });
+  } catch {
+    res.status(400).json({ error: 'Email já cadastrado' });
+  }
+});
+
+// login
+app.post('/api/auth/login', async (req, res) => {
+  const { email, senha } = req.body;
+  const usuario = await prisma.usuario.findUnique({ where: { email } });
+  if (!usuario) return res.status(401).json({ error: 'Email ou senha incorretos' });
+  if (!usuario.ativo) return res.status(403).json({ error: 'Conta aguardando aprovação do administrador' });
+  const ok = await verificarSenha(senha, usuario.senha);
+  if (!ok) return res.status(401).json({ error: 'Email ou senha incorretos' });
+  const token = gerarToken({ id: usuario.id, email: usuario.email, role: usuario.role });
+  res.json({ token, usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, role: usuario.role } });
+});
+
+// meu perfil
+app.get('/api/auth/me', autenticar, async (req: any, res) => {
+  const usuario = await prisma.usuario.findUnique({
+    where: { id: req.usuario.id },
+    select: { id: true, nome: true, email: true, role: true, ativo: true, createdAt: true }
+  });
+  res.json(usuario);
+});
+
+// listar usuários (admin)
+app.get('/api/admin/usuarios', autenticar, apenasAdmin, async (_req, res) => {
+  const usuarios = await prisma.usuario.findMany({
+    select: { id: true, nome: true, email: true, role: true, ativo: true, createdAt: true },
+    orderBy: { createdAt: 'desc' }
+  });
+  res.json(usuarios);
+});
+
+// aprovar/desativar usuário (admin)
+app.patch('/api/admin/usuarios/:id', autenticar, apenasAdmin, async (req, res) => {
+  const { ativo, role } = req.body;
+  const usuario = await prisma.usuario.update({
+    where: { id: Number(req.params.id) },
+    data: { ativo, role }
+  });
+  res.json(usuario);
+});
+
+// histórico de buscas do usuário
+app.get('/api/buscas', autenticar, async (req: any, res) => {
+  const buscas = await prisma.busca.findMany({
+    where: { usuarioId: req.usuario.id },
+    orderBy: { createdAt: 'desc' },
+    take: 20
+  });
+  res.json(buscas);
+});
+
+// registrar busca
+app.post('/api/buscas', autenticar, async (req: any, res) => {
+  const { segmento, filtros, totalLeads } = req.body;
+  const busca = await prisma.busca.create({
+    data: { usuarioId: req.usuario.id, segmento, filtros: JSON.stringify(filtros), totalLeads }
+  });
+  res.json(busca);
 });
 
 const PORT = process.env.PORT ?? 3001;

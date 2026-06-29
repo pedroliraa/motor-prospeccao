@@ -43,11 +43,14 @@ model Empresa {
   instagramStatus    String?
   googleNota         Float?
   googleAvaliacoes   Int?
+  whatsapp String? // 'ativo', 'inativo', null
 
   // scoring (etapa 4)
   score         Int?
   classificacao String?
   justificativa String?
+
+  execucaoId    Int?
 
   status String @default("pendente_enriquecimento")
 

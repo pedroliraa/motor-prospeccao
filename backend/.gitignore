@@ -5,3 +5,5 @@ node_modules
 /generated/prisma
 
 data/
+
+whatsapp-auth/

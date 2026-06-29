@@ -32,7 +32,7 @@ async function lerLinhas(filePath: string, onLinha: (col: string[]) => void) {
   }
 }
 
-async function carregarMunicipios(): Promise<Map<string, string>> {
+export async function carregarMunicipios(): Promise<Map<string, string>> {
   const mapa = new Map<string, string>();
   await lerLinhas(path.resolve('data/F.K03200$Z.D60509.MUNICCSV'), col => {
     if (col.length >= 2) mapa.set(col[0], col[1].toUpperCase());

@@ -1,10 +1,10 @@
 'use client';
 
 const ETAPAS = [
-  { key: 'busca',    label: 'Busca CNAE'      },
-  { key: 'enriq',   label: 'Enriquecimento'   },
+  { key: 'busca', label: 'Busca CNAE' },
+  { key: 'enriq', label: 'Enriquecimento' },
   { key: 'digital', label: 'Presença Digital' },
-  { key: 'scoring', label: 'Scoring IA'       },
+  { key: 'concluido', label: 'Concluído' },
 ];
 
 interface Props {
@@ -18,7 +18,7 @@ export default function ProgressoPipeline({ etapaAtual, total, encontradas }: Pr
   const pct = etapaAtual < 0 ? 0 : concluido ? 100 : Math.round(((etapaAtual + 1) / ETAPAS.length) * 100);
   const label = etapaAtual < 0 ? 'Aguardando execução'
     : concluido ? 'Concluído!'
-    : (ETAPAS[etapaAtual]?.label + '...');
+      : (ETAPAS[etapaAtual]?.label + '...');
 
   return (
     <div className="space-y-3">
@@ -38,24 +38,24 @@ export default function ProgressoPipeline({ etapaAtual, total, encontradas }: Pr
       {/* Etapas */}
       <div className="flex gap-4 flex-wrap">
         {ETAPAS.map((e, i) => {
-          const done   = concluido || i < etapaAtual;
+          const done = concluido || i < etapaAtual;
           const active = !concluido && i === etapaAtual;
           return (
             <div key={e.key} className="flex items-center gap-1.5">
               <div
                 className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
-                  background: done   ? '#1A0008' : active ? '#E4002B' : '#2A2A2A',
-                  color:      done   ? '#E4002B' : active ? '#FFFFFF' : '#4B5563',
-                  border:     done   ? '1px solid #E4002B' : active ? 'none' : '1px solid #3A3A3A',
+                  background: done ? '#1A0008' : active ? '#E4002B' : '#2A2A2A',
+                  color: done ? '#E4002B' : active ? '#FFFFFF' : '#4B5563',
+                  border: done ? '1px solid #E4002B' : active ? 'none' : '1px solid #3A3A3A',
                 }}
               >
-                {done ? '✓' : i + 1}
+                {done ? '✓' : active ? i + 1 : i + 1}
               </div>
               <span
                 className="text-xs"
                 style={{
-                  color:      done ? '#E4002B' : active ? '#F9FAFB' : '#4B5563',
+                  color: done ? '#E4002B' : active ? '#F9FAFB' : '#4B5563',
                   fontWeight: active ? 600 : 400,
                 }}
               >

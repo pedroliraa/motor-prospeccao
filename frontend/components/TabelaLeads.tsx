@@ -212,6 +212,9 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
               <th onClick={() => toggleSort('googleNota')} className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest cursor-pointer select-none hover:text-[#E4002B]" style={{ color: '#6B7280' }}>
                 Google <SortIcon k="googleNota" />
               </th>
+              <th className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+                WPP
+              </th>
               <th className="text-left pb-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
                 Classificar
               </th>
@@ -300,6 +303,17 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
                     <span style={{ color: '#374151' }}>—</span>
                   )}
                 </td>
+
+                <td className="py-3 pr-4 text-xs">
+                  {emp.whatsapp === 'ativo' ? (
+                    <span style={{ color: '#25D366' }}>✓</span>
+                  ) : emp.whatsapp === 'inativo' ? (
+                    <span style={{ color: '#374151' }}>✗</span>
+                  ) : (
+                    <span style={{ color: '#374151' }}>—</span>
+                  )}
+                </td>
+
 
                 <td className="py-3">
                   <ClasseBotoes

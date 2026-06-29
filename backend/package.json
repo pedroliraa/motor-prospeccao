@@ -14,8 +14,10 @@
   "description": "",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
+    "@hapi/boom": "^10.0.1",
     "@prisma/client": "^6.19.3",
     "@types/node": "^25.9.1",
+    "@whiskeysockets/baileys": "^7.0.0-rc13",
     "axios": "^1.16.1",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.77.6",
@@ -29,6 +31,7 @@
     "jsonwebtoken": "^9.0.3",
     "p-limit": "^7.3.0",
     "prisma": "^6.19.3",
+    "qrcode": "^1.5.4",
     "typescript": "^6.0.3"
   },
   "devDependencies": {
@@ -36,6 +39,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/qrcode": "^1.5.6",
     "nodemon": "^3.1.14",
     "tsx": "^4.22.3"
   }

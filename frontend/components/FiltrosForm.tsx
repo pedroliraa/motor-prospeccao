@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { getMunicipios } from '../lib/api';
 
 interface Props {
   estados: string[];
@@ -19,7 +20,7 @@ const ESTADOS = [
   'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
   'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
 ];
-const PORTES = ['ME', 'EPP', 'Grande'];
+const PORTES = ['MEI', 'ME', 'EPP', 'Grande'];
 
 export default function FiltrosForm({
   estados, porte, municipios, somentePrimario, somenteTelefone,
@@ -27,6 +28,8 @@ export default function FiltrosForm({
   onChangeSomentePrimario, onChangeSomenteTelefone
 }: Props) {
   const [municipioInput, setMunicipioInput] = useState('');
+  const [sugestoes, setSugestoes] = useState<string[]>([]);
+  const [aberto, setAberto] = useState(false);
 
   function toggleEstado(uf: string) {
     estados.includes(uf)
@@ -45,10 +48,24 @@ export default function FiltrosForm({
     if (!m || municipios.includes(m)) return;
     onChangeMunicipios([...municipios, m]);
     setMunicipioInput('');
+    setSugestoes([]);
+    setAberto(false);
   }
 
   function removerMunicipio(m: string) {
     onChangeMunicipios(municipios.filter(x => x !== m));
+  }
+
+  async function buscarSugestoes(valor: string) {
+    setMunicipioInput(valor);
+    if (valor.length >= 2) {
+      const data = await getMunicipios(valor);
+      setSugestoes(data);
+      setAberto(true);
+    } else {
+      setSugestoes([]);
+      setAberto(false);
+    }
   }
 
   return (
@@ -75,34 +92,58 @@ export default function FiltrosForm({
 
       <div>
         <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Município</p>
-        <div className="flex gap-1">
-          <input
-            type="text"
-            value={municipioInput}
-            onChange={e => setMunicipioInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && adicionarMunicipio()}
-            placeholder="Ex: Campina Grande"
-            className="flex-1 text-xs rounded px-2 py-1.5 text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
-            style={{ background: '#0D0D0D', border: '1px solid #2A2A2A' }}
-          />
-          <button
-            onClick={adicionarMunicipio}
-            className="text-xs px-3 py-1 rounded font-bold"
-            style={{ background: '#E4002B', color: '#fff' }}
-          >
-            +
-          </button>
-        </div>
-        {municipios.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {municipios.map(m => (
-              <span key={m} className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
-                style={{ background: '#1A0008', color: '#E4002B', border: '1px solid #E4002B' }}>
-                {m}
-                <button onClick={() => removerMunicipio(m)} className="hover:text-white">✕</button>
-              </span>
-            ))}
-          </div>
+        {estados.length === 0 ? (
+          <p className="text-xs" style={{ color: '#4B5563' }}>Selecione um estado primeiro</p>
+        ) : (
+          <>
+            <div className="relative">
+              <div className="flex gap-1">
+                <input
+                  type="text"
+                  value={municipioInput}
+                  onChange={e => buscarSugestoes(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && adicionarMunicipio()}
+                  onBlur={() => setTimeout(() => setAberto(false), 200)}
+                  placeholder="Ex: Campina Grande"
+                  className="flex-1 text-xs rounded px-2 py-1.5 text-white placeholder-gray-600 focus:outline-none"
+                  style={{ background: '#0D0D0D', border: '1px solid #2A2A2A' }}
+                />
+                <button
+                  onClick={adicionarMunicipio}
+                  className="text-xs px-3 py-1 rounded font-bold"
+                  style={{ background: '#E4002B', color: '#fff' }}
+                >
+                  +
+                </button>
+              </div>
+              {aberto && sugestoes.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 rounded-lg overflow-hidden"
+                  style={{ background: '#1A1A1A', border: '1px solid #2A2A2A', maxHeight: '160px', overflowY: 'auto' }}>
+                  {sugestoes.map(s => (
+                    <button
+                      key={s}
+                      onMouseDown={() => { setMunicipioInput(s); setSugestoes([]); setAberto(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-[#2A2A2A]"
+                      style={{ color: '#F9FAFB' }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {municipios.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {municipios.map(m => (
+                  <span key={m} className="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
+                    style={{ background: '#1A0008', color: '#E4002B', border: '1px solid #E4002B' }}>
+                    {m}
+                    <button onClick={() => removerMunicipio(m)} className="hover:text-white">✕</button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 

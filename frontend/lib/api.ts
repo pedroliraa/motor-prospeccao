@@ -20,6 +20,12 @@ export async function iniciarBusca(
   return res.json();
 }
 
+export async function getMunicipios(q: string): Promise<string[]> {
+  if (q.length < 2) return [];
+  const res = await fetch(`${API_URL}/api/municipios?q=${encodeURIComponent(q)}`);
+  return res.json();
+}
+
 export async function getStatusExecucao(id: number) {
   const res = await fetch(`${API_URL}/api/execucoes/${id}`);
   return res.json();
@@ -86,4 +92,18 @@ export async function atualizarClassificacao(id: number, classificacao: string |
 export async function getCnaes(): Promise<{ codigo: string; descricao: string }[]> {
   const res = await fetch(`${API_URL}/api/cnaes`);
   return res.json();
+}
+
+export async function getWhatsAppStatus() {
+  const res = await fetch(`${API_URL}/api/whatsapp/status`);
+  return res.json();
+}
+
+export async function verificarTodosWhatsApp() {
+  const res = await fetch(`${API_URL}/api/whatsapp/verificar-todos`, { method: 'POST' });
+  return res.json();
+}
+
+export async function conectarWhatsApp() {
+  await fetch(`${API_URL}/api/whatsapp/conectar`, { method: 'POST' });
 }

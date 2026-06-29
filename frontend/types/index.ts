@@ -18,6 +18,7 @@ export interface Empresa {
   socios: string | null;
   googleNota: number | null;
   googleAvaliacoes: number | null;
+  whatsapp: string | null;
   instagramHandle: string | null;
   instagramSeguidores: number | null;
   score: number | null;

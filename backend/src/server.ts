@@ -6,6 +6,8 @@ import { executarScoring } from './modules/scoring/index.js';
 import prisma from './db/prisma.js';
 import { gerarExcel } from './modules/exportacao/index.js';
 import { carregarCnaes } from './modules/busca/index.js';
+import { iniciarWhatsApp, getStatus, verificarWhatsApp, desconectarWhatsApp } from './whatsapp.js';
+import { carregarMunicipios } from './modules/busca/index.js';
 import { executarPresencaDigital } from './modules/enriquecimento/presencaDigital.js';
 import { hashSenha, verificarSenha, gerarToken, verificarToken } from './auth.js';
 import cors from 'cors';
@@ -21,6 +23,8 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+
+// listar cnaes
 app.get('/api/cnaes', async (_req, res) => {
   const tabela = await carregarCnaes();
   const lista = Array.from(tabela.entries()).map(([codigo, descricao]) => ({
@@ -28,6 +32,78 @@ app.get('/api/cnaes', async (_req, res) => {
     descricao: descricao as string,
   }));
   res.json(lista);
+});
+
+// status do WhatsApp
+app.get('/api/whatsapp/status', (_req, res) => {
+  res.json(getStatus());
+});
+
+// verificar se número tem WhatsApp
+app.post('/api/whatsapp/verificar', async (req, res) => {
+  const { telefone } = req.body;
+  if (!telefone) return res.status(400).json({ error: 'Telefone obrigatório' });
+  const temWhatsApp = await verificarWhatsApp(telefone);
+  res.json({ telefone, temWhatsApp });
+});
+
+app.post('/api/whatsapp/conectar', async (_req, res) => {
+  const { status } = getStatus();
+  if (status === 'conectado') return res.json({ ok: true, status: 'conectado' });
+  await iniciarWhatsApp();
+  res.json({ ok: true, status: 'aguardando_qr' });
+});
+
+// verificar todos os leads da última execução
+app.post('/api/whatsapp/verificar-todos', async (_req, res) => {
+
+  // pega só da última execução concluída
+  const ultimaExecucao = await prisma.execucao.findFirst({
+    where: { status: 'concluido' },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  if (!ultimaExecucao) return;
+
+  const leads = await prisma.empresa.findMany({
+    where: {
+      execucaoId: ultimaExecucao.id,
+      telefone1: { not: null }
+    },
+    select: { id: true, telefone1: true },
+  });
+
+  let count = 0;
+  for (const lead of leads) {
+    if (!lead.telefone1) continue;
+    const tem = await verificarWhatsApp(lead.telefone1);
+    await prisma.empresa.update({
+      where: { id: lead.id },
+      data: { whatsapp: tem ? 'ativo' : 'inativo' },
+    });
+    count++;
+    if (count % 10 === 0) console.log(`WhatsApp: ${count}/${leads.length} verificados`);
+  }
+  console.log('Verificação WhatsApp concluída!');
+  res.json({ status: 'concluido', total: count });
+});
+
+app.post('/api/whatsapp/desconectar', async (_req, res) => {
+  await desconectarWhatsApp();
+  res.json({ ok: true });
+});
+
+
+//listar municípios
+app.get('/api/municipios', async (req, res) => {
+  const busca = (req.query.q as string ?? '').toUpperCase().trim();
+  if (busca.length < 2) return res.json([]);
+  const tabela = await carregarMunicipios();
+  const resultado = [...new Set(Array.from(tabela.values()))]
+    .filter(nome => nome.includes(busca))
+    .sort()
+    .slice(0, 10);
+  res.json(resultado);
 });
 
 // inicia uma busca
@@ -59,6 +135,7 @@ app.post('/api/execucoes', async (req, res) => {
             await prisma.empresa.upsert({
               where: { cnpj: emp.cnpj },
               update: {
+                execucaoId: execucao.id, 
                 dataAbertura: emp.dataAbertura ? new Date(
                   emp.dataAbertura.slice(0, 4) + '-' +
                   emp.dataAbertura.slice(4, 6) + '-' +
@@ -79,6 +156,7 @@ app.post('/api/execucoes', async (req, res) => {
                   emp.dataAbertura.slice(4, 6) + '-' +
                   emp.dataAbertura.slice(6, 8)
                 ) : null,
+                execucaoId: execucao.id,
                 cidade: emp.municipio || null,
                 estado: emp.uf || null,
                 telefone1: emp.telefone1 || null,
@@ -121,12 +199,20 @@ app.get('/api/execucoes/:id', async (req, res) => {
 });
 
 // lista leads do banco
-app.get('/api/leads', async (req, res) => {
-  const empresas = await prisma.empresa.findMany({
-    orderBy: { score: 'desc' },
-    take: 100,
+app.get('/api/leads', async (_req, res) => {
+  const ultimaExecucao = await prisma.execucao.findFirst({
+    where: { status: 'concluido' },
+    orderBy: { createdAt: 'desc' },
   });
-  res.json(empresas);
+
+  if (!ultimaExecucao) return res.json([]);
+
+  const leads = await prisma.empresa.findMany({
+    where: { execucaoId: ultimaExecucao.id },
+    orderBy: { score: 'desc' },
+  });
+
+  res.json(leads);
 });
 
 // inicia enriquecimento
@@ -441,6 +527,7 @@ app.post('/api/buscas', autenticar, async (req: any, res) => {
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
+  //iniciarWhatsApp();
 });
 
 // mantém o processo vivo

@@ -5,6 +5,7 @@ import makeWASocket, {
 import { Boom } from '@hapi/boom';
 import QRCode from 'qrcode';
 import path from 'path';
+import { rm } from 'fs/promises';
 
 let sock: any = null;
 let qrCodeBase64: string | null = null;
@@ -68,4 +69,13 @@ export async function desconectarWhatsApp() {
   sock = null;
   status = 'desconectado';
   qrCodeBase64 = null;
+
+  await new Promise(r => setTimeout(r, 500));
+
+  try {
+    await rm(path.resolve('whatsapp-auth'), { recursive: true, force: true });
+    console.log('Pasta whatsapp-auth removida');
+  } catch (err) {
+    console.error('Erro ao remover whatsapp-auth:', err);
+  }
 }

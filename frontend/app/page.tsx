@@ -57,14 +57,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
+  const interval = setInterval(async () => {
+    try {
       const data = await getWhatsAppStatus();
       setWppStatus(data.status);
       setWppQR(data.qrCode);
       if (data.status === 'conectado') setWppModal(false);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    } catch {
+      // backend temporariamente indisponível, ignora
+    }
+  }, 3000);
+  return () => clearInterval(interval);
+}, []);
 
   async function recarregarLeads() {
     const data = await getLeads();

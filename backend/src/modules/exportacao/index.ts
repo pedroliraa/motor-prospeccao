@@ -3,7 +3,14 @@ import path from 'path';
 import prisma from '../../db/prisma.js';
 
 export async function gerarExcel(): Promise<string> {
+const ultimaExecucao = await prisma.execucao.findFirst({
+    where: { status: 'concluido' },
+    orderBy: { createdAt: 'desc' },
+  });
+
+
   const empresas = await prisma.empresa.findMany({
+    where: ultimaExecucao ? { execucaoId: ultimaExecucao.id } : undefined,
     orderBy: { score: 'desc' },
   });
 
@@ -35,9 +42,10 @@ export async function gerarExcel(): Promise<string> {
     { header: 'Sócios', key: 'socios', width: 40 },
     { header: 'Google Nota', key: 'googleNota', width: 14 },
     { header: 'Google Avaliações', key: 'googleAvaliacoes', width: 18 },
-    { header: 'Score', key: 'score', width: 8 },
+    { header: 'WhatsApp', key: 'whatsapp', width: 14 },
+    //{ header: 'Score', key: 'score', width: 8 },
     { header: 'Classificação', key: 'classificacao', width: 14 },
-    { header: 'Justificativa IA', key: 'justificativa', width: 60 },
+    //{ header: 'Justificativa IA', key: 'justificativa', width: 60 },
   ];
 
   // estilo do cabeçalho
@@ -83,9 +91,10 @@ export async function gerarExcel(): Promise<string> {
       socios,
       googleNota: emp.googleNota ?? '',
       googleAvaliacoes: emp.googleAvaliacoes ?? '',
-      score: emp.score ?? '',
+      whatsapp: emp.whatsapp === 'ativo' ? 'Sim' : emp.whatsapp === 'inativo' ? 'Não' : '',
+      //score: emp.score ?? '',
       classificacao: emp.classificacao || '',
-      justificativa: emp.justificativa || '',
+      //justificativa: emp.justificativa || '',
     });
 
     // cor por classificação
@@ -102,7 +111,7 @@ export async function gerarExcel(): Promise<string> {
 
   // congela primeira linha e ativa filtro
   ws.views = [{ state: 'frozen', ySplit: 1 }];
-  ws.autoFilter = { from: 'A1', to: 'W1' };
+  ws.autoFilter = { from: 'A1', to: 'X1' };
 
   // salva
   const outputPath = path.resolve('output/leads.xlsx');

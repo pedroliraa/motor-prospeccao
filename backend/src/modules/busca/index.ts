@@ -41,7 +41,7 @@ async function carregarMunicipios(): Promise<Map<string, string>> {
   return mapa;
 }
 
-async function carregarCnaes(): Promise<Map<string, string>> {
+export async function carregarCnaes(): Promise<Map<string, string>> {
   const mapa = new Map<string, string>();
   await lerLinhas(path.resolve('data/F.K03200$Z.D60509.CNAECSV'), col => {
     if (col.length >= 2) mapa.set(col[0].replace(/[-\/]/g, ''), col[1]);
@@ -50,11 +50,20 @@ async function carregarCnaes(): Promise<Map<string, string>> {
   return mapa;
 }
 
-export async function executarBusca(somentePrimario = false): Promise<EmpresaRFB[]> {
-  const { cnaes, filtros } = config;
-  const municipiosAlvo = (filtros.municipios as string[]).map((m: string) => m.toUpperCase());
-  const estados = filtros.estados as string[];
-  const cnaeSet = new Set(cnaes.map((c: string) => c.replace(/[-\/]/g, '')));
+export async function executarBusca(
+  somentePrimario = false,
+  filtrosExternos?: { cnaes: string[]; estados: string[]; municipios: string[]; porte: string[] }
+): Promise<EmpresaRFB[]> {
+  const { cnaes: cnaesConfig, filtros } = config;
+
+  // usa filtros externos se vieram, senão usa config.json
+  const cnaesAtivos = filtrosExternos?.cnaes?.length ? filtrosExternos.cnaes : cnaesConfig;
+  const estadosAtivos = filtrosExternos?.estados?.length ? filtrosExternos.estados : filtros.estados as string[];
+  const municipiosAlvo = filtrosExternos?.municipios?.length
+    ? filtrosExternos.municipios.map(m => m.toUpperCase())
+    : (filtros.municipios as string[]).map((m: string) => m.toUpperCase());
+
+  const cnaeSet = new Set(cnaesAtivos.map((c: string) => c.replace(/[-\/]/g, '')));
 
   console.log('Carregando municípios...');
   const tabelaMunicipios = await carregarMunicipios();
@@ -89,22 +98,16 @@ export async function executarBusca(somentePrimario = false): Promise<EmpresaRFB
       const situacao = col[5] ?? '';
 
       if (somentePrimario) {
-        // só aceita se o CNAE principal (col[11]) estiver na lista
         if (!cnaeSet.has(cnae)) return;
       } else {
-        // aceita se qualquer CNAE secundário (col[12]) também estiver na lista
-        const cnaesSecundarios = (col[12] ?? '').split(',').map(c => c.replace(/[-\/]/g, '').trim());
-        const temMatch = cnaeSet.has(cnae) || cnaesSecundarios.some(c => cnaeSet.has(c));
+        const cnaesSecundarios = (col[12] ?? '').split(',').map((c: string) => c.replace(/[-\/]/g, '').trim());
+        const temMatch = cnaeSet.has(cnae) || cnaesSecundarios.some((c: string) => cnaeSet.has(c));
         if (!temMatch) return;
       }
-      if (!estados.includes(uf)) return;
+
+      if (!estadosAtivos.includes(uf)) return;
       if (codigosMunicipios.size > 0 && !codigosMunicipios.has(municipioCodigo)) return;
       if (situacao !== '02') return;
-
-      // log temporário
-      if (mapa.size < 3) {
-        console.log(`dataAbertura col[10]: "${col[10]}"`);
-      }
 
       const cnpj = (col[0] ?? '') + (col[1] ?? '') + (col[2] ?? '');
 

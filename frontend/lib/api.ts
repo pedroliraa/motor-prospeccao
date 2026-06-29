@@ -5,11 +5,17 @@ export async function getLeads(): Promise<any[]> {
   return res.json();
 }
 
-export async function iniciarBusca(somentePrimario = false) {
+export async function iniciarBusca(
+  somentePrimario = false,
+  cnaes: string[] = [],
+  estados: string[] = [],
+  municipios: string[] = [],
+  porte: string[] = [],
+) {
   const res = await fetch(`${API_URL}/api/execucoes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ somentePrimario }),
+    body: JSON.stringify({ somentePrimario, cnaes, estados, municipios, porte }),
   });
   return res.json();
 }
@@ -74,5 +80,10 @@ export async function atualizarClassificacao(id: number, classificacao: string |
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ classificacao }),
   });
+  return res.json();
+}
+
+export async function getCnaes(): Promise<{ codigo: string; descricao: string }[]> {
+  const res = await fetch(`${API_URL}/api/cnaes`);
   return res.json();
 }

@@ -5,6 +5,7 @@ import { executarEnriquecimento } from './modules/enriquecimento/index.js';
 import { executarScoring } from './modules/scoring/index.js';
 import prisma from './db/prisma.js';
 import { gerarExcel } from './modules/exportacao/index.js';
+import { carregarCnaes } from './modules/busca/index.js';
 import { executarPresencaDigital } from './modules/enriquecimento/presencaDigital.js';
 import { hashSenha, verificarSenha, gerarToken, verificarToken } from './auth.js';
 import cors from 'cors';
@@ -20,14 +21,27 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+app.get('/api/cnaes', async (_req, res) => {
+  const tabela = await carregarCnaes();
+  const lista = Array.from(tabela.entries()).map(([codigo, descricao]) => ({
+    codigo: codigo as string,
+    descricao: descricao as string,
+  }));
+  res.json(lista);
+});
+
 // inicia uma busca
 app.post('/api/execucoes', async (req, res) => {
   const somentePrimario = req.body?.somentePrimario ?? false;
+  const cnaes = req.body?.cnaes ?? [];
+  const estados = req.body?.estados ?? [];
+  const municipios = req.body?.municipios ?? [];
+  const porte = req.body?.porte ?? [];
   console.log('>>> Endpoint /api/execucoes chamado');
   try {
     const execucao = await prisma.execucao.create({
       data: {
-        segmento: 'Material de Construção',
+        segmento: cnaes.join(', ') || 'Busca livre',
         status: 'processando',
       },
     });
@@ -35,7 +49,7 @@ app.post('/api/execucoes', async (req, res) => {
 
     res.json({ id: execucao.id, status: 'processando' });
     console.log('>>> Chamando executarBusca em background...');
-    executarBusca(somentePrimario)
+    executarBusca(somentePrimario, { cnaes, estados, municipios, porte })
       .then(async empresas => {
         console.log(`>>> executarBusca retornou ${empresas.length} empresas`);
         let salvas = 0;

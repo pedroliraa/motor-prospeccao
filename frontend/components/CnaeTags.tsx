@@ -1,67 +1,94 @@
 'use client';
+import { useState, useEffect } from 'react';
+import { getCnaes } from '../lib/api';
 
-const CNAES_POR_SEGMENTO: Record<string, { codigo: string; descricao: string }[]> = {
-  'Material de Construção': [
-    { codigo: '4744099', descricao: 'Materiais de construção em geral' },
-    { codigo: '4744003', descricao: 'Materiais hidráulicos e sanitários' },
-    { codigo: '4744001', descricao: 'Ferragens e ferramentas' },
-    { codigo: '4741500', descricao: 'Tintas e materiais para pintura' },
-    { codigo: '4744002', descricao: 'Madeira e artefatos' },
-    { codigo: '4742300', descricao: 'Materiais elétricos' },
-  ],
-  'Clínicas e Saúde': [
-    { codigo: '8630501', descricao: 'Atividade médica ambulatorial' },
-    { codigo: '8630502', descricao: 'Atividade médica com recursos para diagnóstico' },
-    { codigo: '8640208', descricao: 'Serviços de diagnóstico por imagem' },
-  ],
-  'Restaurantes e Alimentação': [
-    { codigo: '5611201', descricao: 'Restaurantes e similares' },
-    { codigo: '5611203', descricao: 'Lanchonetes e similares' },
-    { codigo: '5612100', descricao: 'Serviços ambulantes de alimentação' },
-  ],
-  'Oficinas e Automotivo': [
-    { codigo: '4520001', descricao: 'Manutenção de automóveis' },
-    { codigo: '4520002', descricao: 'Manutenção de veículos pesados' },
-    { codigo: '4530703', descricao: 'Comércio de peças e acessórios' },
-  ],
-};
+interface Cnae {
+  codigo: string;
+  descricao: string;
+}
 
 interface Props {
-  segmento: string;
   selecionados: string[];
   onChange: (cnaes: string[]) => void;
 }
 
-export default function CnaeTags({ segmento, selecionados, onChange }: Props) {
-  const opcoes = CNAES_POR_SEGMENTO[segmento] ?? [];
+export default function CnaeTags({ selecionados, onChange }: Props) {
+  const [todos, setTodos]     = useState<Cnae[]>([]);
+  const [busca, setBusca]     = useState('');
+  const [aberto, setAberto]   = useState(false);
+
+  useEffect(() => {
+    getCnaes().then(setTodos);
+  }, []);
+
+  const filtrados = busca.length >= 2
+    ? todos.filter(c =>
+        c.codigo.includes(busca) ||
+        c.descricao.toLowerCase().includes(busca.toLowerCase())
+      ).slice(0, 10)
+    : [];
 
   function toggle(codigo: string) {
-    if (selecionados.includes(codigo)) {
-      onChange(selecionados.filter(c => c !== codigo));
-    } else {
-      onChange([...selecionados, codigo]);
-    }
+    selecionados.includes(codigo)
+      ? onChange(selecionados.filter(c => c !== codigo))
+      : onChange([...selecionados, codigo]);
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      {opcoes.map(op => {
-        const ativo = selecionados.includes(op.codigo);
-        return (
-          <button
-            key={op.codigo}
-            onClick={() => toggle(op.codigo)}
-            className="text-xs px-3 py-1 rounded-full transition-colors"
-            style={{
-              background:  ativo ? '#E4002B' : '#0D0D0D',
-              color:       ativo ? '#FFFFFF' : '#9CA3AF',
-              border:      ativo ? '1px solid #E4002B' : '1px solid #2A2A2A',
-            }}
+    <div className="space-y-2">
+      {/* CNAEs selecionados */}
+      <div className="flex flex-wrap gap-1.5">
+        {selecionados.map(cod => {
+          const cnae = todos.find(c => c.codigo === cod);
+          return (
+            <button
+              key={cod}
+              onClick={() => toggle(cod)}
+              className="text-xs px-2 py-1 rounded-full transition-colors"
+              style={{ background: '#E4002B', color: '#fff', border: '1px solid #E4002B' }}
+            >
+              {cod} ✕
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Campo de busca */}
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Buscar CNAE por código ou descrição..."
+          value={busca}
+          onChange={e => { setBusca(e.target.value); setAberto(true); }}
+          onFocus={() => setAberto(true)}
+          onBlur={() => setTimeout(() => setAberto(false), 200)}
+          className="w-full text-xs rounded px-2 py-1.5 text-white placeholder-gray-600"
+          style={{ background: '#0D0D0D', border: '1px solid #2A2A2A' }}
+        />
+
+        {/* Dropdown */}
+        {aberto && filtrados.length > 0 && (
+          <div
+            className="absolute z-50 w-full mt-1 rounded-lg overflow-hidden"
+            style={{ background: '#1A1A1A', border: '1px solid #2A2A2A', maxHeight: '200px', overflowY: 'auto' }}
           >
-            {op.codigo} — {op.descricao}
-          </button>
-        );
-      })}
+            {filtrados.map(c => (
+              <button
+                key={c.codigo}
+                onMouseDown={() => toggle(c.codigo)}
+                className="w-full text-left px-3 py-2 text-xs transition-colors hover:bg-[#2A2A2A]"
+                style={{ color: selecionados.includes(c.codigo) ? '#E4002B' : '#F9FAFB' }}
+              >
+                <span style={{ color: '#E4002B' }}>{c.codigo}</span> — {c.descricao}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {busca.length > 0 && busca.length < 2 && (
+        <p className="text-xs" style={{ color: '#4B5563' }}>Digite pelo menos 2 caracteres</p>
+      )}
     </div>
   );
 }

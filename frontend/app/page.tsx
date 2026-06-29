@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import SegmentoSelect from '../components/SegmentoSelect';
+import { getToken, getUsuario, logout } from '../lib/auth';
 import CnaeTags from '../components/CnaeTags';
 import FiltrosForm from '../components/FiltrosForm';
 import ProgressoPipeline from '../components/ProgressoPipeline';
@@ -10,6 +9,7 @@ import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnrique
 import { Empresa } from '../types/index';
 import GerenciadorEtiquetas from '../components/GerenciadorEtiquetas';
 import { Etiqueta } from '../types/index';
+import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -18,9 +18,9 @@ type FiltroClasse = string;
 
 
 export default function Home() {
-  const [segmento, setSegmento] = useState('Material de Construção');
   const [cnaes, setCnaes] = useState(['4744099', '4744003', '4744001']);
   const [estados, setEstados] = useState(['PB']);
+  const [municipios, setMunicipios] = useState<string[]>([]);
   const [porte, setPorte] = useState(['ME', 'EPP']);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [etapaAtual, setEtapaAtual] = useState(-1);
@@ -30,8 +30,16 @@ export default function Home() {
   const [filtroClasse, setFiltroClasse] = useState<FiltroClasse>('Todos');
   const [somentePrimario, setSomentePrimario] = useState(false);
   const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([]);
+  const [somenteTelefone, setSomenteTelefone] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
     getLeads().then(data => {
       const ordenados = [...data].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
       setEmpresas(ordenados);
@@ -59,7 +67,7 @@ export default function Home() {
   async function executar() {
     setRodando(true);
     setEtapaAtual(0);
-    const exec = await iniciarBusca(somentePrimario);
+    const exec = await iniciarBusca(somentePrimario, cnaes, estados, municipios, porte);
     setExecucaoId(exec.id);
 
     await new Promise<void>(resolve => {
@@ -89,10 +97,11 @@ export default function Home() {
   const quentes = empresas.filter(e => e.classificacao === 'Quente').length;
   const mornos = empresas.filter(e => e.classificacao === 'Morno').length;
 
-  const empresasFiltradas =
+  const empresasFiltradas = (
     filtroClasse === 'Todos' ? empresas :
       filtroClasse === 'Sem classificação' ? empresas.filter(e => !e.classificacao) :
-        empresas.filter(e => e.classificacao === filtroClasse);
+        empresas.filter(e => e.classificacao === filtroClasse)
+  ).filter(e => !somenteTelefone || (e.telefone1 && e.telefone1.trim() !== ''));
 
   const todosOsFiltros = [
     ...FILTROS_FIXOS,
@@ -119,6 +128,22 @@ export default function Home() {
               <p className="text-gray-400 text-xs leading-tight">Busca · Enriquecimento · Scoring</p>
             </div>
           </div>
+          {getUsuario()?.role === 'admin' && (
+            <button
+              onClick={() => router.push('/admin')}
+              className="text-xs px-3 py-1.5 rounded-lg font-bold cursor-pointer"
+              style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB' }}
+            >
+              Admin
+            </button>
+          )}
+          <button
+            onClick={logout}
+            className="text-xs px-3 py-1.5 rounded-lg font-bold transition-all"
+            style={{ background: '#F3F4F6', color: '#E4002B', border: '1px solid #E4002B' }}
+          >
+            Sair
+          </button>
         </div>
       </header>
 
@@ -136,20 +161,20 @@ export default function Home() {
               Configuração
             </p>
             <div>
-              <label className="text-xs text-gray-500 mb-1 block">Segmento</label>
-              <SegmentoSelect value={segmento} onChange={v => { setSegmento(v); setCnaes([]); }} />
-            </div>
-            <div>
               <label className="text-xs text-gray-500 mb-1 block">CNAEs</label>
-              <CnaeTags segmento={segmento} selecionados={cnaes} onChange={setCnaes} />
+              <CnaeTags selecionados={cnaes} onChange={setCnaes} />
             </div>
             <FiltrosForm
               estados={estados}
               porte={porte}
+              municipios={municipios}
               somentePrimario={somentePrimario}
+              somenteTelefone={somenteTelefone}
               onChangeEstados={setEstados}
               onChangePorte={setPorte}
+              onChangeMunicipios={setMunicipios}
               onChangeSomentePrimario={setSomentePrimario}
+              onChangeSomenteTelefone={setSomenteTelefone}
             />
           </div>
 

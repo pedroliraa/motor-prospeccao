@@ -20,6 +20,7 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://prospeccao.impulsebusiness.com.br',
+    'https://api-prospeccao.impulsebusiness.com.br',
     /\.vercel\.app$/
   ]
 }));

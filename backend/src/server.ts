@@ -19,8 +19,8 @@ app.use(express.json());
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://motor-prospeccao.vercel.app', // troca pelo domínio real da Vercel depois
-    /\.vercel\.app$/ // aceita qualquer subdomínio da Vercel
+    'https://prospeccao.impulsebusiness.com.br',
+    /\.vercel\.app$/
   ]
 }));
 

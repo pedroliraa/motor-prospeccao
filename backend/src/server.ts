@@ -16,7 +16,13 @@ dotenv.config({ path: '.env' });
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://motor-prospeccao.vercel.app', // troca pelo domínio real da Vercel depois
+    /\.vercel\.app$/ // aceita qualquer subdomínio da Vercel
+  ]
+}));
 
 // health check
 app.get('/health', (_req, res) => {

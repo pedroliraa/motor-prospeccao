@@ -55,10 +55,10 @@ async function enriquecerComEmpresas(cnpjsNoBanco: Map<string, string[]>) {
       if (!cnpjsNoBanco.has(cnpjBasico)) return;
       count++;
       mapa.set(cnpjBasico, {
-        razaoSocial:   col[1] ?? '',
+        razaoSocial: col[1] ?? '',
         capitalSocial: col[4] ?? '',
-        porte:         col[5] ?? '',
-        dataAbertura:  col[7] ?? '',
+        porte: col[5] ?? '',
+        dataAbertura: col[7] ?? '',
       });
     });
 
@@ -72,10 +72,10 @@ async function enriquecerComEmpresas(cnpjsNoBanco: Map<string, string[]>) {
       await prisma.empresa.update({
         where: { cnpj },
         data: {
-          razaoSocial:   dados.razaoSocial  || null,
-          porte:         mapearPorte(dados.porte),
+          razaoSocial: dados.razaoSocial || null,
+          porte: mapearPorte(dados.porte),
           capitalSocial: parseFloat(dados.capitalSocial.replace(',', '.')) || null,
-          dataAbertura:  dados.dataAbertura ? new Date(
+          dataAbertura: dados.dataAbertura ? new Date(
             dados.dataAbertura.slice(0, 4) + '-' +
             dados.dataAbertura.slice(4, 6) + '-' +
             dados.dataAbertura.slice(6, 8)
@@ -90,17 +90,18 @@ async function enriquecerComEmpresas(cnpjsNoBanco: Map<string, string[]>) {
 
 async function enriquecerComSimples(cnpjsNoBanco: Map<string, string[]>) {
   console.log('\nCarregando SIMPLES...');
-  const filePath = path.resolve('data/F.K03200$W.SIMPLES.CSV.D60509');
+  const simplesFile = readdirSync(path.resolve('data')).find(f => f.includes('SIMPLES'))!;
+  const filePath = path.resolve('data', simplesFile);
   const mapa = new Map<string, string>();
 
   await lerLinhas(filePath, col => {
     const cnpjBasico = col[0] ?? '';
     if (!cnpjsNoBanco.has(cnpjBasico)) return;
     const simples = col[1] === 'S';
-    const mei     = col[4] === 'S';
-    if (mei)          mapa.set(cnpjBasico, 'MEI');
+    const mei = col[4] === 'S';
+    if (mei) mapa.set(cnpjBasico, 'MEI');
     else if (simples) mapa.set(cnpjBasico, 'Simples Nacional');
-    else              mapa.set(cnpjBasico, 'Lucro Presumido/Real');
+    else mapa.set(cnpjBasico, 'Lucro Presumido/Real');
   });
 
   let atualizadas = 0;
@@ -109,7 +110,7 @@ async function enriquecerComSimples(cnpjsNoBanco: Map<string, string[]>) {
     for (const cnpj of cnpjs) {
       await prisma.empresa.update({
         where: { cnpj },
-        data:  { regimeTributario: regime },
+        data: { regimeTributario: regime },
       });
     }
     atualizadas++;
@@ -122,7 +123,7 @@ async function enriquecerComSimples(cnpjsNoBanco: Map<string, string[]>) {
       for (const cnpj of cnpjs) {
         await prisma.empresa.update({
           where: { cnpj },
-          data:  { regimeTributario: 'Lucro Real' },
+          data: { regimeTributario: 'Lucro Real' },
         });
         lucroReal++;
       }
@@ -162,7 +163,7 @@ async function enriquecerComSocios(cnpjsNoBanco: Map<string, string[]>) {
     for (const cnpj of cnpjs) {
       await prisma.empresa.update({
         where: { cnpj },
-        data:  { socios: JSON.stringify(socios) },
+        data: { socios: JSON.stringify(socios) },
       });
     }
     atualizadas++;
@@ -181,7 +182,7 @@ export async function executarEnriquecimento() {
 
   await prisma.empresa.updateMany({
     where: { status: 'pendente_enriquecimento' },
-    data:  { status: 'enriquecido' },
+    data: { status: 'enriquecido' },
   });
 
   console.log('\nEnriquecimento concluído!');

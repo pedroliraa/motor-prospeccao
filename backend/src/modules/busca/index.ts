@@ -34,7 +34,8 @@ async function lerLinhas(filePath: string, onLinha: (col: string[]) => void) {
 
 export async function carregarMunicipios(): Promise<Map<string, string>> {
   const mapa = new Map<string, string>();
-  await lerLinhas(path.resolve('data/F.K03200$Z.D60509.MUNICCSV'), col => {
+  const municFile = readdirSync(path.resolve('data')).find(f => f.includes('MUNICCSV'))!;
+  await lerLinhas(path.resolve('data', municFile), col => {
     if (col.length >= 2) mapa.set(col[0], col[1].toUpperCase());
   });
   console.log(`Municípios: ${mapa.size}`);
@@ -43,7 +44,8 @@ export async function carregarMunicipios(): Promise<Map<string, string>> {
 
 export async function carregarCnaes(): Promise<Map<string, string>> {
   const mapa = new Map<string, string>();
-  await lerLinhas(path.resolve('data/F.K03200$Z.D60509.CNAECSV'), col => {
+  const cnaeFile = readdirSync(path.resolve('data')).find(f => f.includes('CNAECSV'))!;
+  await lerLinhas(path.resolve('data', cnaeFile), col => {
     if (col.length >= 2) mapa.set(col[0].replace(/[-\/]/g, ''), col[1]);
   });
   console.log(`CNAEs: ${mapa.size}`);

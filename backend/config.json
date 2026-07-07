@@ -12,7 +12,7 @@
 
   "filtros": {
     "estados": ["PB"],
-    "municipios": ["CAMPINA GRANDE", "JOAO PESSOA", "ESPERANCA"],
+    "municipios": [],
     "situacao_cadastral": "ATIVA",
     "porte": ["ME", "EPP"]
   }

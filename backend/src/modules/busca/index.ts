@@ -61,7 +61,7 @@ export async function executarBusca(
   // usa filtros externos se vieram, senão usa config.json
   const cnaesAtivos = filtrosExternos?.cnaes?.length ? filtrosExternos.cnaes : cnaesConfig;
   const estadosAtivos = filtrosExternos?.estados?.length ? filtrosExternos.estados : filtros.estados as string[];
-  const municipiosAlvo = filtrosExternos?.municipios?.length
+ const municipiosAlvo = filtrosExternos
     ? filtrosExternos.municipios.map(m => m.toUpperCase())
     : (filtros.municipios as string[]).map((m: string) => m.toUpperCase());
 

@@ -7,13 +7,23 @@ const ETAPAS = [
   { key: 'concluido', label: 'Concluído' },
 ];
 
+function formatarTempo(ms: number): string {
+  const min = Math.round(ms / 60000);
+  if (min < 1) return 'menos de 1 min';
+  if (min < 60) return `~${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `~${h}h${m > 0 ? m + 'min' : ''}`;
+}
+
 interface Props {
   etapaAtual: number;
   total: number;
   encontradas: number;
+  tempoEstimadoRestanteMs?: number | null;
 }
 
-export default function ProgressoPipeline({ etapaAtual, total, encontradas }: Props) {
+export default function ProgressoPipeline({ etapaAtual, total, encontradas, tempoEstimadoRestanteMs }: Props) {
   const concluido = etapaAtual >= ETAPAS.length;
   const pct = etapaAtual < 0 ? 0 : concluido ? 100 : Math.round(((etapaAtual + 1) / ETAPAS.length) * 100);
   const label = etapaAtual < 0 ? 'Aguardando execução'
@@ -69,6 +79,9 @@ export default function ProgressoPipeline({ etapaAtual, total, encontradas }: Pr
       {total > 0 && (
         <p className="text-xs" style={{ color: '#4B5563' }}>
           {encontradas} de {total} empresas processadas
+          {tempoEstimadoRestanteMs != null && tempoEstimadoRestanteMs > 0 && (
+            <> · faltam {formatarTempo(tempoEstimadoRestanteMs)}</>
+          )}
         </p>
       )}
     </div>

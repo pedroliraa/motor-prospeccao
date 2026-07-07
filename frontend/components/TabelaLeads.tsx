@@ -227,9 +227,13 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
                 className="transition-colors hover:bg-[#111111]"
                 style={{ borderBottom: '1px solid #1E1E1E' }}
               >
-                <td className="py-3 pr-4">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-semibold truncate max-w-[180px]" style={{ color: '#F9FAFB' }}>
+                <td className="py-3 pr-4" style={{ maxWidth: '260px' }}>
+                  <div className="flex items-start gap-1.5">
+                    <span
+                      className="font-semibold"
+                      style={{ color: '#F9FAFB', wordBreak: 'break-word', whiteSpace: 'normal' }}
+                      title={emp.nomeFantasia || emp.razaoSocial || '—'}
+                    >
                       {emp.nomeFantasia || emp.razaoSocial || '—'}
                     </span>
                     {isFilial(emp.cnpj) && (
@@ -241,7 +245,12 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
                       </span>
                     )}
                   </div>
-                  <div className="text-xs mt-0.5" style={{ color: '#4B5563' }}>{emp.cnae}</div>
+                  <div className="text-xs mt-0.5 font-medium" style={{ color: '#E4002B' }}>
+                    {emp.cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')}
+                  </div>
+                  <div className="mt-0.5" style={{ color: '#4B5563', fontSize: '10px' }}>
+                    {emp.cnae}
+                  </div>
                 </td>
 
                 <td className="py-3 pr-4 whitespace-nowrap text-xs" style={{ color: '#9CA3AF' }}>

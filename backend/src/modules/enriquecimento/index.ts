@@ -171,6 +171,43 @@ async function enriquecerComSocios(cnpjsNoBanco: Map<string, string[]>) {
   console.log(`Sócios atualizados: ${atualizadas}`);
 }
 
+async function enriquecerComFaturamento() {
+  console.log('\nCalculando faturamento estimado...');
+
+  const empresas = await prisma.empresa.findMany({
+    select: { id: true, regimeTributario: true, porte: true }
+  });
+
+  let atualizadas = 0;
+  for (const emp of empresas) {
+    const regime = emp.regimeTributario ?? '';
+    const porte = emp.porte ?? '';
+
+    let faturamento = 'Não estimado';
+
+    if (regime === 'MEI') {
+      faturamento = 'Até R$ 81k/ano';
+    } else if (regime === 'Simples Nacional' && porte === 'Micro Empresa') {
+      faturamento = 'Até R$ 360k/ano';
+    } else if (regime === 'Simples Nacional' && porte === 'Empresa de Pequeno Porte') {
+      faturamento = 'R$ 360k a R$ 4,8M/ano';
+    } else if (regime === 'Simples Nacional') {
+      faturamento = 'Até R$ 4,8M/ano';
+    } else if (regime === 'Lucro Presumido/Real') {
+      faturamento = 'R$ 4,8M a R$ 78M/ano';
+    } else if (regime === 'Lucro Real') {
+      faturamento = 'Acima de R$ 78M/ano';
+    }
+
+    await prisma.empresa.update({
+      where: { id: emp.id },
+      data: { faturamentoEstimado: faturamento }
+    });
+    atualizadas++;
+  }
+  console.log(`Faturamento estimado para ${atualizadas} empresas`);
+}
+
 export async function executarEnriquecimento() {
   console.log('Iniciando enriquecimento...\n');
 
@@ -178,6 +215,7 @@ export async function executarEnriquecimento() {
 
   await enriquecerComEmpresas(cnpjsNoBanco);
   await enriquecerComSimples(cnpjsNoBanco);
+  await enriquecerComFaturamento();
   await enriquecerComSocios(cnpjsNoBanco);
 
   await prisma.empresa.updateMany({

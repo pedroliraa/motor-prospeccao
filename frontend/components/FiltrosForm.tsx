@@ -80,8 +80,8 @@ export default function FiltrosForm({
                 className="text-xs px-2 py-1 rounded transition-colors font-medium"
                 style={{
                   background: ativo ? '#E4002B' : '#0D0D0D',
-                  color:      ativo ? '#FFFFFF' : '#6B7280',
-                  border:     ativo ? '1px solid #E4002B' : '1px solid #2A2A2A',
+                  color: ativo ? '#FFFFFF' : '#6B7280',
+                  border: ativo ? '1px solid #E4002B' : '1px solid #2A2A2A',
                 }}>
                 {uf}
               </button>
@@ -122,7 +122,14 @@ export default function FiltrosForm({
                   {sugestoes.map(s => (
                     <button
                       key={s}
-                      onMouseDown={() => { setMunicipioInput(s); setSugestoes([]); setAberto(false); }}
+                      onMouseDown={() => {
+                        if (!municipios.includes(s)) {
+                          onChangeMunicipios([...municipios, s]);
+                        }
+                        setMunicipioInput('');
+                        setSugestoes([]);
+                        setAberto(false);
+                      }}
                       className="w-full text-left px-3 py-2 text-xs hover:bg-[#2A2A2A]"
                       style={{ color: '#F9FAFB' }}
                     >
@@ -154,8 +161,8 @@ export default function FiltrosForm({
           className="text-xs px-3 py-1.5 rounded w-full font-medium transition-colors text-left"
           style={{
             background: somentePrimario ? '#E4002B' : '#0D0D0D',
-            color:      somentePrimario ? '#fff'    : '#6B7280',
-            border:     somentePrimario ? '1px solid #E4002B' : '1px solid #2A2A2A',
+            color: somentePrimario ? '#fff' : '#6B7280',
+            border: somentePrimario ? '1px solid #E4002B' : '1px solid #2A2A2A',
           }}
         >
           {somentePrimario ? '✓ Só CNAE primário' : 'Todos os CNAEs (primário + secundário)'}
@@ -169,8 +176,8 @@ export default function FiltrosForm({
           className="text-xs px-3 py-1.5 rounded w-full font-medium transition-colors text-left"
           style={{
             background: somenteTelefone ? '#E4002B' : '#0D0D0D',
-            color:      somenteTelefone ? '#fff'    : '#6B7280',
-            border:     somenteTelefone ? '1px solid #E4002B' : '1px solid #2A2A2A',
+            color: somenteTelefone ? '#fff' : '#6B7280',
+            border: somenteTelefone ? '1px solid #E4002B' : '1px solid #2A2A2A',
           }}
         >
           {somenteTelefone ? '✓ Só com telefone' : 'Todos (com e sem telefone)'}
@@ -187,8 +194,8 @@ export default function FiltrosForm({
                 className="text-xs px-3 py-1 rounded transition-colors font-medium"
                 style={{
                   background: ativo ? '#E4002B' : '#0D0D0D',
-                  color:      ativo ? '#FFFFFF' : '#6B7280',
-                  border:     ativo ? '1px solid #E4002B' : '1px solid #2A2A2A',
+                  color: ativo ? '#FFFFFF' : '#6B7280',
+                  border: ativo ? '1px solid #E4002B' : '1px solid #2A2A2A',
                 }}>
                 {p}
               </button>

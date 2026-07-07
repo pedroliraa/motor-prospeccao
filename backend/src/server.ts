@@ -14,6 +14,8 @@ import cors from 'cors';
 
 dotenv.config({ path: '.env' });
 
+let inicioEnriquecimento: number | null = null;
+
 const app = express();
 app.use(express.json());
 app.use(cors({
@@ -142,7 +144,7 @@ app.post('/api/execucoes', async (req, res) => {
             await prisma.empresa.upsert({
               where: { cnpj: emp.cnpj },
               update: {
-                execucaoId: execucao.id, 
+                execucaoId: execucao.id,
                 dataAbertura: emp.dataAbertura ? new Date(
                   emp.dataAbertura.slice(0, 4) + '-' +
                   emp.dataAbertura.slice(4, 6) + '-' +
@@ -224,8 +226,11 @@ app.get('/api/leads', async (_req, res) => {
 
 // inicia enriquecimento
 app.post('/api/enriquecimento', async (_req, res) => {
+  inicioEnriquecimento = Date.now();
   res.json({ status: 'processando' });
-  executarEnriquecimento().catch(console.error);
+  executarEnriquecimento()
+    .then(() => { inicioEnriquecimento = null; })
+    .catch(console.error);
 });
 
 // status do enriquecimento
@@ -233,7 +238,15 @@ app.get('/api/enriquecimento/status', async (_req, res) => {
   const total = await prisma.empresa.count();
   const enriquecidas = await prisma.empresa.count({ where: { status: 'enriquecido' } });
   const pendentes = await prisma.empresa.count({ where: { status: 'pendente_enriquecimento' } });
-  res.json({ total, enriquecidas, pendentes });
+
+  let tempoEstimadoRestanteMs: number | null = null;
+  if (inicioEnriquecimento && enriquecidas > 0 && pendentes > 0) {
+    const decorrido = Date.now() - inicioEnriquecimento;
+    const msPorEmpresa = decorrido / enriquecidas;
+    tempoEstimadoRestanteMs = Math.round(msPorEmpresa * pendentes);
+  }
+
+  res.json({ total, enriquecidas, pendentes, tempoEstimadoRestanteMs });
 });
 
 

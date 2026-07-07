@@ -6,8 +6,7 @@ import FiltrosForm from '../components/FiltrosForm';
 import ProgressoPipeline from '../components/ProgressoPipeline';
 import { getWhatsAppStatus, verificarTodosWhatsApp, conectarWhatsApp } from '../lib/api';
 import TabelaLeads from '../components/TabelaLeads';
-import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api';
-import { Empresa } from '../types/index';
+import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, getStatusEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api'; import { Empresa } from '../types/index';
 import GerenciadorEtiquetas from '../components/GerenciadorEtiquetas';
 import { Etiqueta } from '../types/index';
 import { useRouter } from 'next/navigation';
@@ -39,6 +38,7 @@ export default function Home() {
   //const [wppContagem, setWppContagem] = useState<{ total: number, verificados: number } | null>(null);
   const [wppMenuAberto, setWppMenuAberto] = useState(false);
   const [wppMenuPos, setWppMenuPos] = useState({ x: 0, y: 0 });
+  const [tempoEstimadoRestanteMs, setTempoEstimadoRestanteMs] = useState<number | null>(null);
 
   const router = useRouter();
 
@@ -57,18 +57,18 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-  const interval = setInterval(async () => {
-    try {
-      const data = await getWhatsAppStatus();
-      setWppStatus(data.status);
-      setWppQR(data.qrCode);
-      if (data.status === 'conectado') setWppModal(false);
-    } catch {
-      // backend temporariamente indisponível, ignora
-    }
-  }, 3000);
-  return () => clearInterval(interval);
-}, []);
+    const interval = setInterval(async () => {
+      try {
+        const data = await getWhatsAppStatus();
+        setWppStatus(data.status);
+        setWppQR(data.qrCode);
+        if (data.status === 'conectado') setWppModal(false);
+      } catch {
+        // backend temporariamente indisponível, ignora
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   async function recarregarLeads() {
     const data = await getLeads();
@@ -110,7 +110,14 @@ export default function Home() {
 
     setEtapaAtual(1);
     await iniciarEnriquecimento();
-    await new Promise(r => setTimeout(r, 5000));
+    await new Promise<void>(resolve => {
+      const interval = setInterval(async () => {
+        const status = await getStatusEnriquecimento();
+        setTempoEstimadoRestanteMs(status.tempoEstimadoRestanteMs ?? null);
+        if (status.pendentes === 0) { clearInterval(interval); resolve(); }
+      }, 3000);
+    });
+    setTempoEstimadoRestanteMs(null);
 
     setEtapaAtual(2);
     await iniciarPresencaDigital();
@@ -234,7 +241,7 @@ export default function Home() {
         <div className="flex-1 space-y-4" style={{ minWidth: 0 }}>
           {etapaAtual >= 0 && (
             <div className="rounded-xl p-4" style={{ background: '#1A1A1A', border: '1px solid #2A2A2A' }}>
-              <ProgressoPipeline etapaAtual={etapaAtual} total={totalBanco} encontradas={empresas.length} />
+              <ProgressoPipeline etapaAtual={etapaAtual} total={totalBanco} encontradas={empresas.length} tempoEstimadoRestanteMs={tempoEstimadoRestanteMs} />
             </div>
           )}
 

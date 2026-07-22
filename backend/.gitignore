@@ -10,3 +10,6 @@ whatsapp-auth/
 
 dev.db
 dev.db-journal
+
+backend/output/*.xlsx
+backend/prisma/*.db

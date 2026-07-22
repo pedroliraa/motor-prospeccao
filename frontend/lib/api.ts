@@ -1,3 +1,6 @@
+import { getToken } from './auth';
+import { Busca } from '../types/index';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export async function getLeads(): Promise<any[]> {
@@ -113,6 +116,26 @@ export async function atualizarNotas(id: number, notas: string) {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ notas }),
+  });
+  return res.json();
+}
+
+export async function getBuscas(): Promise<Busca[]> {
+  const res = await fetch(`${API_URL}/api/buscas`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function registrarBusca(segmento: string, filtros: object, totalLeads: number) {
+  const res = await fetch(`${API_URL}/api/buscas`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ segmento, filtros, totalLeads }),
   });
   return res.json();
 }

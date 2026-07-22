@@ -45,6 +45,14 @@ export interface FiltrosBusca {
   regime: string[];
 }
 
+export interface Busca {
+  id: number;
+  segmento: string;
+  filtros: string;
+  totalLeads: number;
+  createdAt: string;
+}
+
 export interface Etiqueta {
   id: number;
   nome: string;

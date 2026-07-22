@@ -6,7 +6,7 @@ import FiltrosForm from '../components/FiltrosForm';
 import ProgressoPipeline from '../components/ProgressoPipeline';
 import { getWhatsAppStatus, verificarTodosWhatsApp, conectarWhatsApp } from '../lib/api';
 import TabelaLeads from '../components/TabelaLeads';
-import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, getStatusEnriquecimento, iniciarPresencaDigital, exportarExcel, registrarBusca } from '../lib/api';
+import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, getStatusEnriquecimento, iniciarPresencaDigital, exportarExcel, registrarBusca, getBuscas } from '../lib/api';
 import { Empresa, Etiqueta, Busca } from '../types/index';
 import GerenciadorEtiquetas from '../components/GerenciadorEtiquetas';
 import HistoricoBuscas from '../components/HistoricoBuscas';
@@ -55,6 +55,20 @@ export default function Home() {
       setEmpresas(ordenados);
       setTotalBanco(data.length);
       getEtiquetas().then(setEtiquetas);
+    });
+
+    getBuscas().then(buscas => {
+      if (buscas.length === 0) return;
+      const ultima = buscas[0];
+      try {
+        const filtros = JSON.parse(ultima.filtros);
+        if (filtros.cnaes) setCnaes(filtros.cnaes);
+        if (filtros.estados) setEstados(filtros.estados);
+        if (filtros.municipios) setMunicipios(filtros.municipios);
+        if (filtros.porte) setPorte(filtros.porte);
+        if (typeof filtros.somentePrimario === 'boolean') setSomentePrimario(filtros.somentePrimario);
+        if (typeof filtros.somenteTelefone === 'boolean') setSomenteTelefone(filtros.somenteTelefone);
+      } catch {}
     });
   }, []);
 

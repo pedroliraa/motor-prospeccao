@@ -44,6 +44,7 @@ model Empresa {
   googleNota         Float?
   googleAvaliacoes   Int?
   whatsapp String? // 'ativo', 'inativo', null
+  notas String?
 
   // scoring (etapa 4)
   score         Int?

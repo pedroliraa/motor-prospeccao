@@ -107,3 +107,12 @@ export async function verificarTodosWhatsApp() {
 export async function conectarWhatsApp() {
   await fetch(`${API_URL}/api/whatsapp/conectar`, { method: 'POST' });
 }
+
+export async function atualizarNotas(id: number, notas: string) {
+  const res = await fetch(`${API_URL}/api/leads/${id}/notas`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notas }),
+  });
+  return res.json();
+}

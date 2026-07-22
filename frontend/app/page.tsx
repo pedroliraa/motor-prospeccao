@@ -39,6 +39,7 @@ export default function Home() {
   const [wppMenuAberto, setWppMenuAberto] = useState(false);
   const [wppMenuPos, setWppMenuPos] = useState({ x: 0, y: 0 });
   const [tempoEstimadoRestanteMs, setTempoEstimadoRestanteMs] = useState<number | null>(null);
+  const [montado, setMontado] = useState(false);
 
   const router = useRouter();
 
@@ -69,6 +70,10 @@ export default function Home() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+  setMontado(true);
+}, []);
 
   async function recarregarLeads() {
     const data = await getLeads();
@@ -166,7 +171,7 @@ export default function Home() {
               <p className="text-gray-400 text-xs leading-tight">Busca · Enriquecimento · Scoring</p>
             </div>
           </div>
-          {getUsuario()?.role === 'admin' && (
+          {montado && getUsuario()?.role === 'admin' && (
             <button
               onClick={() => router.push('/admin')}
               className="text-xs px-3 py-1.5 rounded-lg font-bold cursor-pointer"

@@ -544,6 +544,16 @@ app.post('/api/buscas', autenticar, async (req: any, res) => {
   res.json(busca);
 });
 
+//notas
+app.patch('/api/leads/:id/notas', async (req, res) => {
+  const { notas } = req.body;
+  const empresa = await prisma.empresa.update({
+    where: { id: Number(req.params.id) },
+    data: { notas },
+  });
+  res.json(empresa);
+});
+
 const PORT = process.env.PORT ?? 3001;
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);

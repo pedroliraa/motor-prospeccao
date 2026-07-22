@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Empresa, Etiqueta } from '../types/index';
-import { atualizarClassificacao } from '../lib/api';
+import { atualizarClassificacao, atualizarNotas } from '../lib/api';
 
 interface Props {
   empresas: Empresa[];
@@ -75,6 +75,55 @@ function ClasseBotoes({ id, atual, etiquetas, onChange }: {
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function NotasCell({ id, notasIniciais }: { id: number; notasIniciais: string | null }) {
+  const [valor, setValor] = useState(notasIniciais ?? '');
+  const [salvo, setSalvo] = useState(notasIniciais ?? '');
+  const [salvando, setSalvando] = useState(false);
+  const [confirmado, setConfirmado] = useState(false);
+
+  const alterado = valor !== salvo;
+
+  async function salvar() {
+    setSalvando(true);
+    await atualizarNotas(id, valor);
+    setSalvo(valor);
+    setSalvando(false);
+    setConfirmado(true);
+    setTimeout(() => setConfirmado(false), 1500);
+  }
+
+  return (
+    <div className="flex flex-col gap-1" style={{ minWidth: '160px' }}>
+      <textarea
+        value={valor}
+        onChange={e => setValor(e.target.value)}
+        placeholder="Adicionar nota..."
+        rows={2}
+        className="text-xs rounded px-2 py-1 w-full resize-y"
+        style={{
+          background: '#0D0D0D',
+          border: `1px solid ${alterado ? '#E4002B' : '#2A2A2A'}`,
+          color: '#F9FAFB',
+          maxHeight: '100px',
+        }}
+      />
+      {(alterado || confirmado) && (
+        <button
+          onClick={salvar}
+          disabled={salvando || !alterado}
+          className="text-xs px-2 py-1 rounded font-bold self-start disabled:opacity-60"
+          style={{
+            background: confirmado ? '#16A34A' : '#E4002B',
+            color: '#fff',
+          }}
+        >
+          {salvando ? 'Salvando...' : confirmado ? '✓ Salvo' : 'Salvar nota'}
+        </button>
+      )}
     </div>
   );
 }
@@ -215,8 +264,11 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
               <th className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
                 WPP
               </th>
-              <th className="text-left pb-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+              <th className="text-left pb-3 pr-4 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
                 Classificar
+              </th>
+              <th className="text-left pb-3 text-xs font-bold uppercase tracking-widest" style={{ color: '#4B5563' }}>
+                Notas
               </th>
             </tr>
           </thead>
@@ -324,13 +376,16 @@ export default function TabelaLeads({ empresas, etiquetas, onClassificacaoChange
                 </td>
 
 
-                <td className="py-3">
+                <td className="py-3 pr-4">
                   <ClasseBotoes
                     id={emp.id}
                     atual={emp.classificacao}
                     etiquetas={etiquetas}
                     onChange={onClassificacaoChange ?? (() => { })}
                   />
+                </td>
+                <td className="py-3">
+                  <NotasCell id={emp.id} notasIniciais={emp.notas} />
                 </td>
               </tr>
             ))}

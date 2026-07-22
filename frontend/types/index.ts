@@ -19,6 +19,7 @@ export interface Empresa {
   googleNota: number | null;
   googleAvaliacoes: number | null;
   whatsapp: string | null;
+  notas: string | null;
   instagramHandle: string | null;
   instagramSeguidores: number | null;
   score: number | null;
@@ -42,6 +43,14 @@ export interface FiltrosBusca {
   municipios: string[];
   porte: string[];
   regime: string[];
+}
+
+export interface Busca {
+  id: number;
+  segmento: string;
+  filtros: string;
+  totalLeads: number;
+  createdAt: string;
 }
 
 export interface Etiqueta {

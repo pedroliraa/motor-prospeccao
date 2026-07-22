@@ -6,9 +6,10 @@ import FiltrosForm from '../components/FiltrosForm';
 import ProgressoPipeline from '../components/ProgressoPipeline';
 import { getWhatsAppStatus, verificarTodosWhatsApp, conectarWhatsApp } from '../lib/api';
 import TabelaLeads from '../components/TabelaLeads';
-import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, getStatusEnriquecimento, iniciarPresencaDigital, exportarExcel } from '../lib/api'; import { Empresa } from '../types/index';
+import { getLeads, getEtiquetas, iniciarBusca, getStatusExecucao, iniciarEnriquecimento, getStatusEnriquecimento, iniciarPresencaDigital, exportarExcel, registrarBusca, getBuscas } from '../lib/api';
+import { Empresa, Etiqueta, Busca } from '../types/index';
 import GerenciadorEtiquetas from '../components/GerenciadorEtiquetas';
-import { Etiqueta } from '../types/index';
+import HistoricoBuscas from '../components/HistoricoBuscas';
 import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -39,6 +40,7 @@ export default function Home() {
   const [wppMenuAberto, setWppMenuAberto] = useState(false);
   const [wppMenuPos, setWppMenuPos] = useState({ x: 0, y: 0 });
   const [tempoEstimadoRestanteMs, setTempoEstimadoRestanteMs] = useState<number | null>(null);
+  const [montado, setMontado] = useState(false);
 
   const router = useRouter();
 
@@ -53,6 +55,20 @@ export default function Home() {
       setEmpresas(ordenados);
       setTotalBanco(data.length);
       getEtiquetas().then(setEtiquetas);
+    });
+
+    getBuscas().then(buscas => {
+      if (buscas.length === 0) return;
+      const ultima = buscas[0];
+      try {
+        const filtros = JSON.parse(ultima.filtros);
+        if (filtros.cnaes) setCnaes(filtros.cnaes);
+        if (filtros.estados) setEstados(filtros.estados);
+        if (filtros.municipios) setMunicipios(filtros.municipios);
+        if (filtros.porte) setPorte(filtros.porte);
+        if (typeof filtros.somentePrimario === 'boolean') setSomentePrimario(filtros.somentePrimario);
+        if (typeof filtros.somenteTelefone === 'boolean') setSomenteTelefone(filtros.somenteTelefone);
+      } catch {}
     });
   }, []);
 
@@ -69,6 +85,10 @@ export default function Home() {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+  setMontado(true);
+}, []);
 
   async function recarregarLeads() {
     const data = await getLeads();
@@ -129,6 +149,10 @@ export default function Home() {
 
     setEtapaAtual(3);
     await recarregarLeads();
+
+    const segmento = cnaes.join(', ') || 'Busca livre';
+    await registrarBusca(segmento, { cnaes, estados, municipios, porte, somentePrimario, somenteTelefone }, empresas.length);
+
     setRodando(false);
   }
 
@@ -166,7 +190,7 @@ export default function Home() {
               <p className="text-gray-400 text-xs leading-tight">Busca · Enriquecimento · Scoring</p>
             </div>
           </div>
-          {getUsuario()?.role === 'admin' && (
+          {montado && getUsuario()?.role === 'admin' && (
             <button
               onClick={() => router.push('/admin')}
               className="text-xs px-3 py-1.5 rounded-lg font-bold cursor-pointer"
@@ -233,6 +257,15 @@ export default function Home() {
                   : 'Selecione pelo menos um estado'}
             </p>
           )}
+
+          <HistoricoBuscas onReaplicar={(filtros) => {
+            if (filtros.cnaes) setCnaes(filtros.cnaes);
+            if (filtros.estados) setEstados(filtros.estados);
+            if (filtros.municipios) setMunicipios(filtros.municipios);
+            if (filtros.porte) setPorte(filtros.porte);
+            if (typeof filtros.somentePrimario === 'boolean') setSomentePrimario(filtros.somentePrimario);
+            if (typeof filtros.somenteTelefone === 'boolean') setSomenteTelefone(filtros.somenteTelefone);
+          }} />
 
           <GerenciadorEtiquetas etiquetas={etiquetas} onUpdate={recarregarEtiquetas} />
         </div>

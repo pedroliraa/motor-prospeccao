@@ -58,3 +58,23 @@ export interface Etiqueta {
   nome: string;
   cor: string;
 }
+
+export interface DashboardData {
+  total: number;
+  porCidade: { cidade: string; total: number }[];
+  porCnae: { cnae: string; total: number }[];
+  porPorte: { porte: string; total: number }[];
+  porRegime: { regime: string; total: number }[];
+  classificacao: {
+    quentes: number;
+    mornos: number;
+    frios: number;
+    semClassificacao: number;
+  };
+  qualidade: {
+    comTelefone: number;
+    comWhatsapp: number;
+    comGoogle: number;
+  };
+  evolucaoBuscas: { createdAt: string; totalLeads: number; segmento: string }[];
+}

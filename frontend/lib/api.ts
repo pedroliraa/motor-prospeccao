@@ -1,5 +1,5 @@
 import { getToken } from './auth';
-import { Busca } from '../types/index';
+import { Busca, DashboardData } from '../types/index';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -137,5 +137,15 @@ export async function registrarBusca(segmento: string, filtros: object, totalLea
     },
     body: JSON.stringify({ segmento, filtros, totalLeads }),
   });
+  return res.json();
+}
+
+export async function getDashboard(filtros?: { cidade?: string; porte?: string; regimeTributario?: string }): Promise<DashboardData> {
+  const params = new URLSearchParams();
+  if (filtros?.cidade) params.set('cidade', filtros.cidade);
+  if (filtros?.porte) params.set('porte', filtros.porte);
+  if (filtros?.regimeTributario) params.set('regimeTributario', filtros.regimeTributario);
+
+  const res = await fetch(`${API_URL}/api/dashboard?${params.toString()}`);
   return res.json();
 }

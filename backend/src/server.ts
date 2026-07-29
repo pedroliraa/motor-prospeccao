@@ -564,3 +564,80 @@ app.listen(PORT, () => {
 process.on('SIGINT', () => process.exit(0));
 process.on('SIGTERM', () => process.exit(0));
 process.stdin.resume();
+
+//dashboard
+app.get('/api/dashboard', async (req, res) => {
+  const { cidade, porte, regimeTributario } = req.query as { cidade?: string; porte?: string; regimeTributario?: string };
+
+  const filtroBase: any = {};
+  if (cidade) filtroBase.cidade = cidade;
+  if (porte) filtroBase.porte = porte;
+  if (regimeTributario) filtroBase.regimeTributario = regimeTributario;
+
+  const total = await prisma.empresa.count({ where: filtroBase });
+
+  // Leads por cidade (top 10)
+  const porCidadeRaw = await prisma.empresa.groupBy({
+    by: ['cidade'],
+    _count: { id: true },
+    where: { ...filtroBase, ...(filtroBase.cidade ? {} : { cidade: { not: null } }) },
+    orderBy: { _count: { id: 'desc' } },
+    take: 10,
+  });
+  const porCidade = porCidadeRaw.map(c => ({ cidade: c.cidade, total: c._count.id }));
+
+  // Leads por CNAE/segmento (top 10)
+  const porCnaeRaw = await prisma.empresa.groupBy({
+    by: ['cnaeDescricao'],
+    _count: { id: true },
+    where: { ...filtroBase, ...(filtroBase.cnaeDescricao ? {} : { cnaeDescricao: { not: null } }) },
+    orderBy: { _count: { id: 'desc' } },
+    take: 10,
+  });
+  const porCnae = porCnaeRaw.map(c => ({ cnae: c.cnaeDescricao, total: c._count.id }));
+
+  // Distribuição por porte
+  const porPorteRaw = await prisma.empresa.groupBy({
+    by: ['porte'],
+    _count: { id: true },
+    where: { ...filtroBase, ...(filtroBase.porte ? {} : { porte: { not: null } }) },
+  });
+  const porPorte = porPorteRaw.map(p => ({ porte: p.porte, total: p._count.id }));
+
+  // Distribuição por regime tributário
+  const porRegimeRaw = await prisma.empresa.groupBy({
+    by: ['regimeTributario'],
+    _count: { id: true },
+    where: { ...filtroBase, ...(filtroBase.regimeTributario ? {} : { regimeTributario: { not: null } }) },
+  });
+  const porRegime = porRegimeRaw.map(r => ({ regime: r.regimeTributario, total: r._count.id }));
+
+  // Funil de classificação
+  const quentes = await prisma.empresa.count({ where: { ...filtroBase, classificacao: 'Quente' } });
+  const mornos = await prisma.empresa.count({ where: { ...filtroBase, classificacao: 'Morno' } });
+  const frios = await prisma.empresa.count({ where: { ...filtroBase, classificacao: 'Frio' } });
+  const semClassificacao = await prisma.empresa.count({ where: { ...filtroBase, classificacao: null } });
+
+  // Percentuais de qualidade do dado
+  const comTelefone = await prisma.empresa.count({ where: { ...filtroBase, telefone1: { not: null } } });
+  const comWhatsapp = await prisma.empresa.count({ where: { ...filtroBase, whatsapp: 'ativo' } });
+  const comGoogle = await prisma.empresa.count({ where: { ...filtroBase, googleNota: { not: null } } });
+
+  // Evolução de buscas ao longo do tempo (últimas 20)
+  const buscas = await prisma.busca.findMany({
+    orderBy: { createdAt: 'asc' },
+    take: 20,
+    select: { createdAt: true, totalLeads: true, segmento: true },
+  });
+
+  res.json({
+    total,
+    porCidade,
+    porCnae,
+    porPorte,
+    porRegime,
+    classificacao: { quentes, mornos, frios, semClassificacao },
+    qualidade: { comTelefone, comWhatsapp, comGoogle },
+    evolucaoBuscas: buscas,
+  });
+});

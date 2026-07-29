@@ -190,6 +190,15 @@ export default function Home() {
               <p className="text-gray-400 text-xs leading-tight">Busca · Enriquecimento · Scoring</p>
             </div>
           </div>
+          {montado && (
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="text-xs px-3 py-1.5 rounded-lg font-bold cursor-pointer"
+              style={{ background: '#F3F4F6', color: '#374151', border: '1px solid #E5E7EB' }}
+            >
+              📊 Dashboard
+            </button>
+          )}
           {montado && getUsuario()?.role === 'admin' && (
             <button
               onClick={() => router.push('/admin')}
